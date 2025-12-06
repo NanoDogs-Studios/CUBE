@@ -28,6 +28,10 @@ public class ServerManager : MonoBehaviourPunCallbacks
     private void CachePlayers()
     {
         allPlayers = GameObject.FindGameObjectsWithTag("Player");
+        allBasePlayers = Array.FindAll(
+            FindObjectsByType<BasePlayer>(FindObjectsSortMode.None),
+            p => p != null && p.gameObject.CompareTag("Player")
+        );
     }
 
     public static KillerType GetCurrentKiller()
@@ -47,7 +51,7 @@ public class ServerManager : MonoBehaviourPunCallbacks
         // only the Master Client assigns roles
         if (PhotonNetwork.IsMasterClient)
         {
-            photonView.RPC("HandleRoundStart", RpcTarget.MasterClient);
+            HandleRoundStart();
         }
     }
 
@@ -61,16 +65,30 @@ public class ServerManager : MonoBehaviourPunCallbacks
 
         GameObject highestMalicePlayer = null;
         int highestMalice = int.MinValue;
+        System.Collections.Generic.List<GameObject> contenders = new System.Collections.Generic.List<GameObject>();
 
         // PICK HIGHEST MALICE
         foreach (GameObject player in allPlayers)
         {
             BasePlayerStats stats = player.GetComponent<BasePlayerStats>();
-            if (stats != null && stats.malice >= highestMalice)
+            if (stats == null) continue;
+
+            if (stats.malice > highestMalice)
             {
                 highestMalice = stats.malice;
-                highestMalicePlayer = player;
+                contenders.Clear();
+                contenders.Add(player);
             }
+            else if (stats.malice == highestMalice)
+            {
+                contenders.Add(player);
+            }
+        }
+
+        if (contenders.Count > 0)
+        {
+            int chosenIndex = UnityEngine.Random.Range(0, contenders.Count);
+            highestMalicePlayer = contenders[chosenIndex];
         }
 
         // ASSIGN ROLES
