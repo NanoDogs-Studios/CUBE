@@ -162,17 +162,4 @@ public class CameraPositionPreviewWindow : EditorWindow
             previewTexture = null;
         }
     }
-
-    [InitializeOnLoadMethod]
-    private static void InitSceneGizmo()
-    {
-        SceneView.duringSceneGui += (sceneView) =>
-        {
-            var window = GetWindow<CameraPositionPreviewWindow>(false, null, false);
-            if (window != null && window.camPosObject != null)
-            {
-                window.OnSceneGUI(sceneView);
-            }
-        };
-    }
 }
