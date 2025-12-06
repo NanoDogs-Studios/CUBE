@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
@@ -45,14 +46,26 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         isTeleporting = true;
 
         Transform rig = transform.Find("RIG");
+        if (rig == null)
+        {
+            isTeleporting = false;
+            yield break;
+        }
 
-        // Get all rigidbodies
+        // Get all rigidbodies and transforms inside the rig (including root)
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
+        var rigTransforms = rig.GetComponentsInChildren<Transform>();
 
-        // Calculate an offset that snaps the player's root to the target spawn
-        // position instead of trying to align to a specific bone (which could
-        // be offset or animated away from the root).
-        Vector3 offset = targetPosition - transform.position;
+        // Calculate an offset from the rig root to the target position so bones
+        // are shifted consistently.
+        Vector3 offset = targetPosition - rig.position;
+
+        // Cache the desired world positions so we can reapply them after moving the root
+        var targetPositions = new Dictionary<Transform, Vector3>(rigTransforms.Length);
+        foreach (var t in rigTransforms)
+        {
+            targetPositions[t] = t.position + offset;
+        }
 
         // Freeze all rigidbodies
         foreach (var rb in rbs)
@@ -65,36 +78,37 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         // Wait for physics to settle
         yield return new WaitForFixedUpdate();
 
-        // Move all rigidbodies
-        foreach (var rb in rbs)
+        // Shift the rig root, then reapply the cached world positions to children
+        rig.position = targetPositions[rig];
+        foreach (var t in rigTransforms)
         {
-            rb.position += offset;
+            if (t == rig) continue;
+            t.position = targetPositions[t];
         }
 
-        // Move transforms
-        rig.position += offset;
-        transform.position += offset;
-
-        // Force Photon to snap instead of interpolating a huge offset
-        var transformView = GetComponent<PhotonTransformViewClassic>();
-        if (transformView != null)
+        // Keep rigidbody positions in sync with updated transforms
+        foreach (var rb in rbs)
         {
-            transformView.TeleportTo(transform.position, transform.rotation);
+            rb.position = rb.transform.position;
         }
 
         // Force physics update
         Physics.SyncTransforms();
 
-        // Wait before unfreezing
+        // Unfreeze rigidbodies on the next fixed update to avoid drift
+        StartCoroutine(UnfreezeRigidbodiesNextFixedUpdate(rbs));
+
+        isTeleporting = false;
+    }
+
+    private IEnumerator UnfreezeRigidbodiesNextFixedUpdate(Rigidbody[] rbs)
+    {
         yield return new WaitForFixedUpdate();
         yield return new WaitForFixedUpdate();
 
-        // Unfreeze rigidbodies
         foreach (var rb in rbs)
         {
             rb.isKinematic = false;
         }
-
-        isTeleporting = false;
     }
 }
