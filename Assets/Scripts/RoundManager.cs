@@ -77,6 +77,20 @@ public class RoundManager : MonoBehaviourPunCallbacks
         );
     }
 
+    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        // Send the current round state so late joiners keep timers, roles, and teleports in sync
+        photonView.RPC(
+            "SyncState",
+            newPlayer,
+            roundActive,
+            intermissionActive,
+            currentTime
+        );
+    }
+
     [PunRPC]
     public void StartRound(double roundEndTime)
     {
