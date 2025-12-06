@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda7c93c5a9abca46a364ac5fb2d106c, type: 3}
+  m_Name: Cubes 1
+  m_EditorClassIdentifier: Assembly-CSharp::MapData
+  mapImage: {fileID: 0}
+  mapName: Cubes 1
+  mapPrefab: {fileID: 8775096360358501433, guid: 18d9d0bd7f2f9004cba5f04060006feb, type: 3}

@@ -1,0 +1,20 @@
+{
+    "asset": "e60fec1ed44c0504e990679c3942cdc2",
+    "fileName": "01992160-ea3e-7310-9b81-7a7c80b05bd3.jpg",
+    "prompt": "Cursor,vector,smooth,simple,2d,ui",
+    "negativePrompt": "watermark,complex,pixelated,3d,render,icon",
+    "model": "55f71215-6b73-4707-881e-69c61aca68c0",
+    "modelName": "3D Icons",
+    "customSeed": -1,
+    "w3CTraceId": "338c3e2a47a1f7f3d9bb9e2930579cf8",
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0
+}

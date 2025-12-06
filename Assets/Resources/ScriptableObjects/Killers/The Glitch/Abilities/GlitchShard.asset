@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 471743f01cf733f4a8e7205588a99c99, type: 3}
+  m_Name: GlitchShard
+  m_EditorClassIdentifier: Assembly-CSharp::GlitchShard
+  AbilityName: Glitch Cube
+  AbilityIcon: {fileID: 21300000, guid: 1b7e4e5edb744cd4a822ba7d21bbe7b2, type: 3}
+  AbilityIconGrayscale: {fileID: 21300000, guid: 65739a9d8944bad4e8a4013969f09fa9, type: 3}
+  AbilityCooldown: 10
+  AbilityActivation: {fileID: 8261794699482648619, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  cubeMesh: {fileID: -5495902117074765545, guid: 8941ea01eaf338b4984b6ea29d5b5af2, type: 3}
+  force: 20
+  damage: 15

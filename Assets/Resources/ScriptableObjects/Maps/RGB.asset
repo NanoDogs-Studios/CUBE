@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda7c93c5a9abca46a364ac5fb2d106c, type: 3}
+  m_Name: RGB
+  m_EditorClassIdentifier: Assembly-CSharp::MapData
+  mapImage: {fileID: 0}
+  mapName: Red, Green and Blue
+  mapPrefab: {fileID: 7358223783939335180, guid: e9c285a07214d8c479d335be77707817, type: 3}

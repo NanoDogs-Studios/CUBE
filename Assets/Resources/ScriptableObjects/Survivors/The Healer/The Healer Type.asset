@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65b0caba13f502f4b9f687a366149c0d, type: 3}
+  m_Name: The Healer Type
+  m_EditorClassIdentifier: Assembly-CSharp::SurvivorType
+  image: {fileID: 21300000, guid: 34c53e607b71c3f42922022346d6493f, type: 3}
+  _Name: The Healer
+  Description: 
+  ScriptName: TheHealer
+  Cost: 700
+  Difficulty: 2
+  Health: 95
+  Speed: 35
+  Stamina: 110
+  abilities:
+  - {fileID: 11400000, guid: b4c5f146f4db29c42a464e5b0aa19811, type: 2}
+  - {fileID: 11400000, guid: 78d230154fa7dda409ceb7ee026913c8, type: 2}
+  _PlayFabItemID: TheCoder
+  character: {fileID: 11400000, guid: 765343be78d6b554f9f6bf3f93d24c83, type: 2}

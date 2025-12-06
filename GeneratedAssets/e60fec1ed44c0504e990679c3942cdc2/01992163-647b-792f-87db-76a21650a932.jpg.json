@@ -1,0 +1,20 @@
+{
+    "asset": "e60fec1ed44c0504e990679c3942cdc2",
+    "fileName": "01992163-647b-792f-87db-76a21650a932.jpg",
+    "prompt": "minimalist cursor design, modern flat style, clean white arrow with subtle shadow, smooth edges, slightly rounded tip, high-resolution UI icon, vector style, Windows 11 inspired, professional interface design, simple neutral background",
+    "negativePrompt": "low resolution, blurry, pixelated, jagged edges, distorted shape, extra elements, complex background, cluttered design, text, watermark, logo, photo-realistic",
+    "model": "55f71215-6b73-4707-881e-69c61aca68c0",
+    "modelName": "3D Icons",
+    "customSeed": -1,
+    "w3CTraceId": "98c74d3960c15b2447b4539d812e546c",
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0
+}
