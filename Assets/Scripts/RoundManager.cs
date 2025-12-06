@@ -40,7 +40,7 @@ public class RoundManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer)
+    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
