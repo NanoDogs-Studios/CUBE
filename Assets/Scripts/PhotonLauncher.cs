@@ -108,17 +108,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
 
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
 
-        foreach (var rb in rbs)
-        {
-            rb.isKinematic = true;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
-
-        Vector3 offset = targetPosition - rig.position;
-
-        rig.position = targetPosition;
-        player.transform.position = rig.position;
+        Vector3 offset = targetPosition - player.transform.position;
 
         foreach (var rb in rbs)
         {

@@ -44,10 +44,15 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
         isTeleporting = true;
 
-        Transform rig = GetComponentInChildren<Rig>()?.transform ?? transform.Find("RIG") ?? transform;
+        Transform rig = transform.Find("RIG");
 
         // Get all rigidbodies
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
+
+        // Calculate an offset that snaps the player's root to the target spawn
+        // position instead of trying to align to a specific bone (which could
+        // be offset or animated away from the root).
+        Vector3 offset = targetPosition - transform.position;
 
         // Freeze all rigidbodies
         foreach (var rb in rbs)
@@ -69,6 +74,17 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         foreach (var rb in rbs)
         {
             rb.position += offset;
+        }
+
+        // Move transforms
+        rig.position += offset;
+        transform.position += offset;
+
+        // Force Photon to snap instead of interpolating a huge offset
+        var transformView = GetComponent<PhotonTransformViewClassic>();
+        if (transformView != null)
+        {
+            transformView.TeleportTo(transform.position, transform.rotation);
         }
 
         // Force physics update
