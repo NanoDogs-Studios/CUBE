@@ -49,10 +49,6 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         // Get all rigidbodies
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
 
-        // Calculate an offset from the rig's root so the RIG object (and, by
-        // extension, the entire player) lands exactly on the spawn position.
-        Vector3 offset = targetPosition - rig.position;
-
         // Freeze all rigidbodies
         foreach (var rb in rbs)
         {
@@ -61,18 +57,18 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
             rb.angularVelocity = Vector3.zero;
         }
 
-        // Wait for physics to settle
-        yield return new WaitForFixedUpdate();
+        // Calculate an offset from the rig's root so the RIG object (and, by
+        // extension, the entire player) lands exactly on the spawn position.
+        Vector3 offset = targetPosition - rig.position;
 
-        // Shift the network root by the rig offset so the rig lands exactly on
-        // the target position while preserving the rig's local hierarchy.
-        transform.position += offset;
+        // Move immediately to avoid physics-driven drift between frames
+        rig.position = targetPosition;
+        transform.position = rig.position;
 
-        // Force Photon to snap instead of interpolating a huge offset
-        var transformView = GetComponent<PhotonTransformViewClassic>();
-        if (transformView != null)
+        // Ensure every body stays aligned with the new root position
+        foreach (var rb in rbs)
         {
-            transformView.TeleportTo(transform.position, transform.rotation);
+            rb.position += offset;
         }
 
         // Force physics update

@@ -117,6 +117,13 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
         }
 
         instanceMaterial.SetColor("_MainColor", converted);
+
+        // Always reapply the instanced material so bones revert from any
+        // round-specific customization back to the saved color material.
+        foreach (Renderer bone in customizedBones)
+        {
+            bone.material = instanceMaterial;
+        }
     }
 
 
