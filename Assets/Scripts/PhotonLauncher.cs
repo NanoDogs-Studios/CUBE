@@ -68,7 +68,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
     }
 
     // This is now the main teleport method that other scripts call
-    public void TeleportPlayer(Vector3 targetPosition)
+    public void TeleportPlayer(Vector3 targetPosition, Quaternion? targetRotation = null)
     {
         if (LocalPlayerInstance == null)
         {
@@ -80,7 +80,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
         PlayerTeleportHandler teleportHandler = LocalPlayerInstance.GetComponent<PlayerTeleportHandler>();
         if (teleportHandler != null)
         {
-            teleportHandler.InitiateTeleport(targetPosition);
+            teleportHandler.InitiateTeleport(targetPosition, targetRotation);
         }
         else
         {
@@ -91,13 +91,13 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
             if (playerPhotonView != null && playerPhotonView.IsMine)
             {
                 // Directly teleport locally and rely on transform sync
-                PerformLocalTeleport(LocalPlayerInstance, targetPosition);
+                PerformLocalTeleport(LocalPlayerInstance, targetPosition, targetRotation);
             }
         }
     }
 
     // Fallback local teleport method
-    private void PerformLocalTeleport(GameObject player, Vector3 targetPosition)
+    private void PerformLocalTeleport(GameObject player, Vector3 targetPosition, Quaternion? targetRotation)
     {
         Transform rig = player.transform.Find("RIG");
         if (rig == null)
@@ -107,19 +107,64 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
         }
 
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
+        var rigTransforms = rig.GetComponentsInChildren<Transform>();
 
         Vector3 offset = targetPosition - player.transform.position;
+        Transform root = player.transform;
+        Quaternion? rotationOffset = null;
+        var targetPositions = new Dictionary<Transform, Vector3>(rigTransforms.Length);
+        var targetRotations = new Dictionary<Transform, Quaternion>(rigTransforms.Length);
+
+        if (targetRotation.HasValue)
+        {
+            rotationOffset = targetRotation.Value * Quaternion.Inverse(rig.rotation);
+        }
+
+        foreach (var t in rigTransforms)
+        {
+            targetPositions[t] = t.position + offset;
+            targetRotations[t] = rotationOffset.HasValue ? rotationOffset.Value * t.rotation : t.rotation;
+        }
 
         foreach (var rb in rbs)
         {
             rb.isKinematic = true;
-            rb.linearVelocity = Vector3.zero;
+            rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            rb.position += offset;
+            rb.Sleep();
         }
 
-        rig.position += offset;
-        player.transform.position = targetPosition;
+        root.position += offset;
+        if (rotationOffset.HasValue)
+        {
+            root.rotation = rotationOffset.Value * root.rotation;
+        }
+
+        rig.position = targetPositions[rig];
+        if (rotationOffset.HasValue)
+        {
+            rig.rotation = targetRotations[rig];
+        }
+
+        foreach (var t in rigTransforms)
+        {
+            if (t == rig) continue;
+
+            t.position = targetPositions[t];
+            if (rotationOffset.HasValue)
+            {
+                t.rotation = targetRotations[t];
+            }
+        }
+
+        foreach (var rb in rbs)
+        {
+            rb.position = rb.transform.position;
+            if (rotationOffset.HasValue)
+            {
+                rb.rotation = rb.transform.rotation;
+            }
+        }
 
         // Force physics sync
         Physics.SyncTransforms();
@@ -163,7 +208,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
         }
         else
         {
-            TeleportPlayer(intermissionSpawn.position);
+            TeleportPlayer(intermissionSpawn.position, intermissionSpawn.rotation);
         }
     }
 
@@ -207,7 +252,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
             : survivorSpawns[survivorIndex];
 
         Debug.Log("Teleporting to: " + chosenSpawn.position);
-        TeleportPlayer(chosenSpawn.position);
+        TeleportPlayer(chosenSpawn.position, chosenSpawn.rotation);
     }
 
     private void HandleRoundStart()
@@ -231,7 +276,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
     {
         if (LocalPlayerInstance == null) return;
         Debug.Log("Intermission started — teleporting to intermission spawn.");
-        TeleportPlayer(intermissionSpawn.position);
+        TeleportPlayer(intermissionSpawn.position, intermissionSpawn.rotation);
     }
 
     // optional: keep SpawnWhenReady if you want to delay spawn/teleport until Photon is ready
@@ -259,6 +304,6 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
             : survivorSpawns[survivorIndex];
 
         Debug.Log("Teleporting player to: " + chosenSpawn.position);
-        TeleportPlayer(chosenSpawn.position);
+        TeleportPlayer(chosenSpawn.position, chosenSpawn.rotation);
     }
 }
