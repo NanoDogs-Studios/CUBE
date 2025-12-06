@@ -41,6 +41,14 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
     private IEnumerator PerformTeleport(Vector3 targetPosition)
     {
+        // Avoid overlapping teleports that can stack offsets
+        if (isTeleporting)
+        {
+            yield break;
+        }
+
+        isTeleporting = true;
+
         Transform rig = transform.Find("RIG");
 
         if (rig == null)
@@ -107,5 +115,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         {
             rb.isKinematic = false;
         }
+
+        isTeleporting = false;
     }
 }
