@@ -49,27 +49,10 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         // Get all rigidbodies
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
 
-        // Find hip for offset calculation
-        Rigidbody hip = null;
-        foreach (var rb in rbs)
-        {
-            if (rb.name == "Hip")
-            {
-                hip = rb;
-                break;
-            }
-        }
-
-        Vector3 offset;
-        if (hip != null)
-        {
-            offset = targetPosition - hip.position;
-        }
-        else
-        {
-            // No hip found, use the RIG position
-            offset = targetPosition - rig.position;
-        }
+        // Calculate an offset that snaps the player's root to the target spawn
+        // position instead of trying to align to a specific bone (which could
+        // be offset or animated away from the root).
+        Vector3 offset = targetPosition - transform.position;
 
         // Freeze all rigidbodies
         foreach (var rb in rbs)
