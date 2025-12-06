@@ -6,6 +6,7 @@ using Photon.Pun;
 public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 {
     private PhotonView pv;
+    private Coroutine teleportRoutine;
 
     private void Awake()
     {
@@ -30,12 +31,23 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
     private void NetworkTeleportPlayer(Vector3 targetPosition)
     {
         // This executes on all clients for this specific player
-        StartCoroutine(PerformTeleport(targetPosition));
+        if (teleportRoutine != null)
+        {
+            StopCoroutine(teleportRoutine);
+        }
+
+        teleportRoutine = StartCoroutine(PerformTeleport(targetPosition));
     }
 
     private IEnumerator PerformTeleport(Vector3 targetPosition)
     {
         Transform rig = transform.Find("RIG");
+
+        if (rig == null)
+        {
+            transform.position = targetPosition;
+            yield break;
+        }
 
         // Get all rigidbodies
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
@@ -81,6 +93,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
         // Move transforms
         rig.position += offset;
+        transform.position = targetPosition;
 
         // Force physics update
         Physics.SyncTransforms();

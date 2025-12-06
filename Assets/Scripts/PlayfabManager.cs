@@ -20,6 +20,7 @@ public class PlayfabManager : MonoBehaviour
 
     string PlayFabId;
     static string displayName;
+    private static string savedColorHex;
 
     private float searchInterval = 1f;
     private float searchTimer = 0f;
@@ -171,6 +172,7 @@ public class PlayfabManager : MonoBehaviour
                 string colorTrim = item.Value.Value.Trim('#');
                 Color color = FromHex(colorTrim);
                 picker.CurrentColor = color;
+                savedColorHex = colorTrim;
             }
         }
     }
@@ -216,11 +218,18 @@ public class PlayfabManager : MonoBehaviour
     public void OnSetColorData(UpdateUserDataResult result)
     {
         Debug.Log("Set Color: " + result.ToString());
+        savedColorHex = picker.CurrentColor.ToHexString();
     }
 
     public static string GetPlayerName()
     {
         return displayName;
+    }
+
+    public static bool TryGetSavedColorHex(out string hex)
+    {
+        hex = savedColorHex;
+        return !string.IsNullOrEmpty(savedColorHex);
     }
 
     public static Color FromHex(string hex)

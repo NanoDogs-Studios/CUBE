@@ -15,6 +15,25 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
     {
         roundManager = GameObject.Find("Multiplayer").GetComponent<RoundManager>();
         roundManager.OnRoundStart += RoundStarted;
+        roundManager.OnIntermissionStart += IntermissionStarted;
+
+        StartCoroutine(ApplySavedColor());
+    }
+
+    private System.Collections.IEnumerator ApplySavedColor()
+    {
+        // wait until Playfab has pulled the saved color
+        while (string.IsNullOrEmpty(localHex))
+        {
+            if (PlayfabManager.TryGetSavedColorHex(out string savedHex))
+            {
+                ChangeColorCalled(savedHex);
+                localHex = savedHex;
+                break;
+            }
+
+            yield return new WaitForSecondsRealtime(0.25f);
+        }
     }
 
     private void RoundStarted()
@@ -34,6 +53,25 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
         {
             string survivorID = basePlayer.GetEquippedSurvivor()._Name;
             photonView.RPC("SetSurvivorCustomisationByName", RpcTarget.AllBuffered, survivorID);
+        }
+    }
+
+    private void IntermissionStarted()
+    {
+        if (!photonView.IsMine) return;
+
+        if (!string.IsNullOrEmpty(localHex))
+        {
+            photonView.RPC("ChangeColor", RpcTarget.AllBuffered, localHex);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (roundManager != null)
+        {
+            roundManager.OnRoundStart -= RoundStarted;
+            roundManager.OnIntermissionStart -= IntermissionStarted;
         }
     }
 
