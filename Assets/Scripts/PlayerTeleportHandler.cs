@@ -6,6 +6,7 @@ using Photon.Pun;
 public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 {
     private PhotonView pv;
+    private bool isTeleporting = false;
     private Coroutine teleportRoutine;
 
     private void Awake()
