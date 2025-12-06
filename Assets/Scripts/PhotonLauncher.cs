@@ -80,7 +80,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
         PlayerTeleportHandler teleportHandler = LocalPlayerInstance.GetComponent<PlayerTeleportHandler>();
         if (teleportHandler != null)
         {
-            teleportHandler.InitiateTeleport(targetPosition);
+            teleportHandler.InitiateTeleport(targetPosition, targetRotation);
         }
         else
         {

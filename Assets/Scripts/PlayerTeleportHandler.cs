@@ -15,12 +15,14 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
     }
 
     // Call this method from PhotonLauncher or any other script to teleport this player
-    public void InitiateTeleport(Vector3 targetPosition)
+    public void InitiateTeleport(Vector3 targetPosition, Quaternion? targetRotation = null)
     {
         if (pv.IsMine)
         {
             // Send RPC to all clients to teleport this player
-            pv.RPC("NetworkTeleportPlayer", RpcTarget.All, targetPosition);
+            bool hasRotation = targetRotation.HasValue;
+            Quaternion rotation = targetRotation ?? Quaternion.identity;
+            pv.RPC("NetworkTeleportPlayer", RpcTarget.All, targetPosition, hasRotation, rotation);
         }
         else
         {
@@ -29,13 +31,13 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void NetworkTeleportPlayer(Vector3 targetPosition)
+    private void NetworkTeleportPlayer(Vector3 targetPosition, bool hasRotation, Quaternion targetRotation)
     {
         // This executes on all clients for this specific player
-        StartCoroutine(PerformTeleport(targetPosition));
+        StartCoroutine(PerformTeleport(targetPosition, hasRotation ? targetRotation : (Quaternion?)null));
     }
 
-    private IEnumerator PerformTeleport(Vector3 targetPosition)
+    private IEnumerator PerformTeleport(Vector3 targetPosition, Quaternion? targetRotation)
     {
         // Avoid overlapping teleports that can stack offsets
         if (isTeleporting)
