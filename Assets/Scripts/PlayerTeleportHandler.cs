@@ -73,7 +73,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         foreach (var rb in rbs)
         {
             rb.isKinematic = true;
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
 
