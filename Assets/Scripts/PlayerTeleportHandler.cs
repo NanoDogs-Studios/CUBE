@@ -80,7 +80,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         foreach (var rb in rbs)
         {
             rb.isKinematic = true;
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             rb.Sleep();
         }
@@ -110,13 +110,6 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         {
             rb.position = rb.transform.position;
             rb.rotation = rb.transform.rotation;
-        }
-
-        // Force Photon to snap instead of interpolating a huge offset
-        var transformView = GetComponent<PhotonTransformViewClassic>();
-        if (transformView != null)
-        {
-            transformView.TeleportTo(transform.position, transform.rotation);
         }
 
         // Force physics update
