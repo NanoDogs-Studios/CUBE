@@ -1,7 +1,9 @@
 using Photon.Pun;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using Photon.Realtime;
 
 public class RoundManager : MonoBehaviourPunCallbacks
 {
@@ -17,26 +19,71 @@ public class RoundManager : MonoBehaviourPunCallbacks
     public event Action OnIntermissionStart;
 
     private Coroutine timerCoroutine;
+    private double endTimestamp;
+
+    public Vector3 SyncedIntermissionSpawnPos { get; private set; }
+    public Quaternion SyncedIntermissionSpawnRot { get; private set; }
 
     private void Start()
     {
         Debug.Log($"PlayerAbilityManager instances in scene: {FindObjectsByType<PlayerAbilityManager>(FindObjectsSortMode.InstanceID).Length}");
+
+        RefreshIntermissionSpawnFromPoint();
     }
 
     public override void OnJoinedRoom()
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            photonView.RPC("StartIntermission", RpcTarget.All);
+            double endTime = PhotonNetwork.Time + intermissionTime;
+            photonView.RPC("StartIntermission", RpcTarget.All, SyncedIntermissionSpawnPos, SyncedIntermissionSpawnRot, endTime);
         }
     }
 
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        // Send the current round state so late joiners keep timers, roles, and teleports in sync
+        var actorNumbers = new System.Collections.Generic.List<int>();
+        var roleValues = new System.Collections.Generic.List<int>();
+        var colorHexes = new System.Collections.Generic.List<string>();
+
+        foreach (GameObject go in GameObject.FindGameObjectsWithTag("Player"))
+        {
+            PhotonView pv = go.GetComponent<PhotonView>();
+            if (pv == null) continue;
+
+            actorNumbers.Add(pv.OwnerActorNr);
+
+            BasePlayer basePlayer = go.GetComponent<BasePlayer>();
+            roleValues.Add(basePlayer != null ? (int)basePlayer.GetPlayerType() : -1);
+
+            PlayerCustomizer customizer = go.GetComponent<PlayerCustomizer>();
+            colorHexes.Add(customizer != null ? customizer.GetCurrentHex() : string.Empty);
+        }
+
+        photonView.RPC(
+            "SyncState",
+            newPlayer,
+            roundActive,
+            intermissionActive,
+            endTimestamp,
+            SyncedIntermissionSpawnPos,
+            SyncedIntermissionSpawnRot,
+            actorNumbers.ToArray(),
+            roleValues.ToArray(),
+            colorHexes.ToArray()
+        );
+    }
+
     [PunRPC]
-    public void StartRound()
+    public void StartRound(double roundEndTime)
     {
         roundActive = true;
         intermissionActive = false;
-        currentTime = roundTime;
+        endTimestamp = roundEndTime;
+        UpdateCurrentTime();
 
         if (timerCoroutine != null)
         {
@@ -50,11 +97,14 @@ public class RoundManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void StartIntermission()
+    public void StartIntermission(Vector3 spawnPosition, Quaternion spawnRotation, double intermissionEndTime)
     {
         roundActive = false;
         intermissionActive = true;
-        currentTime = intermissionTime;
+        SyncedIntermissionSpawnPos = spawnPosition;
+        SyncedIntermissionSpawnRot = spawnRotation;
+        endTimestamp = intermissionEndTime;
+        UpdateCurrentTime();
 
         if (timerCoroutine != null)
         {
@@ -65,21 +115,59 @@ public class RoundManager : MonoBehaviourPunCallbacks
         OnIntermissionStart?.Invoke();
     }
 
+    [PunRPC]
+    private void SyncState(bool roundActiveState, bool intermissionActiveState, double syncedEndTimestamp, Vector3 spawnPosition, Quaternion spawnRotation, int[] actorNumbers, int[] roleValues, string[] colorHexes)
+    {
+        roundActive = roundActiveState;
+        intermissionActive = intermissionActiveState;
+        endTimestamp = syncedEndTimestamp;
+        SyncedIntermissionSpawnPos = spawnPosition;
+        SyncedIntermissionSpawnRot = spawnRotation;
+
+        ApplyRolesAndColors(actorNumbers, roleValues, colorHexes);
+
+        UpdateCurrentTime();
+
+        if (timerCoroutine != null)
+        {
+            StopCoroutine(timerCoroutine);
+        }
+
+        if (roundActive || intermissionActive)
+        {
+            timerCoroutine = StartCoroutine(Timer());
+
+            if (intermissionActive)
+            {
+                OnIntermissionStart?.Invoke();
+            }
+            else if (roundActive)
+            {
+                OnRoundStart?.Invoke();
+            }
+        }
+    }
+
     private IEnumerator Timer()
     {
         while (roundActive || intermissionActive)
         {
-            yield return new WaitForSecondsRealtime(1);
-            currentTime--;
+            UpdateCurrentTime();
 
-            if (roundActive && currentTime <= 0)
+            if (PhotonNetwork.IsMasterClient && PhotonNetwork.Time >= endTimestamp)
             {
-                photonView.RPC("EndRound", RpcTarget.All);
+                if (roundActive)
+                {
+                    photonView.RPC("EndRound", RpcTarget.All);
+                }
+                else if (intermissionActive)
+                {
+                    double nextEnd = PhotonNetwork.Time + roundTime;
+                    photonView.RPC("StartRound", RpcTarget.All, nextEnd);
+                }
             }
-            else if (intermissionActive && currentTime <= 0)
-            {
-                photonView.RPC("StartRound", RpcTarget.All);
-            }
+
+            yield return new WaitForSecondsRealtime(1);
         }
     }
 
@@ -110,11 +198,64 @@ public class RoundManager : MonoBehaviourPunCallbacks
             }
         }
 
-        photonView.RPC("StartIntermission", RpcTarget.All);
+        RefreshIntermissionSpawnFromPoint();
+        double endTime = PhotonNetwork.Time + intermissionTime;
+        photonView.RPC("StartIntermission", RpcTarget.All, SyncedIntermissionSpawnPos, SyncedIntermissionSpawnRot, endTime);
     }
 
     public int GetCurrentTime()
     {
         return currentTime;
+    }
+
+    public void UpdateIntermissionSpawn(Transform spawn)
+    {
+        intermissionSpawnPoint = spawn;
+        RefreshIntermissionSpawnFromPoint();
+    }
+
+    private void RefreshIntermissionSpawnFromPoint()
+    {
+        if (intermissionSpawnPoint != null)
+        {
+            SyncedIntermissionSpawnPos = intermissionSpawnPoint.position;
+            SyncedIntermissionSpawnRot = intermissionSpawnPoint.rotation;
+        }
+    }
+
+    private void UpdateCurrentTime()
+    {
+        double remaining = Math.Max(0, endTimestamp - PhotonNetwork.Time);
+        currentTime = (int)Math.Ceiling(remaining);
+    }
+
+    private void ApplyRolesAndColors(int[] actorNumbers, int[] roleValues, string[] colorHexes)
+    {
+        if (actorNumbers == null || roleValues == null || colorHexes == null) return;
+
+        for (int i = 0; i < actorNumbers.Length; i++)
+        {
+            int actor = actorNumbers[i];
+            int roleValue = i < roleValues.Length ? roleValues[i] : -1;
+            string color = i < colorHexes.Length ? colorHexes[i] : string.Empty;
+
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("Player"))
+            {
+                PhotonView pv = go.GetComponent<PhotonView>();
+                if (pv == null || pv.OwnerActorNr != actor) continue;
+
+                BasePlayer basePlayer = go.GetComponent<BasePlayer>();
+                if (basePlayer != null && roleValue >= 0)
+                {
+                    basePlayer.SetPlayerType((BasePlayer.PlayerType)roleValue);
+                }
+
+                PlayerCustomizer customizer = go.GetComponent<PlayerCustomizer>();
+                if (customizer != null && !string.IsNullOrEmpty(color))
+                {
+                    customizer.ChangeColor(color);
+                }
+            }
+        }
     }
 }
