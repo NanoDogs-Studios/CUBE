@@ -46,9 +46,12 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
 
     private void IntermissionStarted()
     {
-        if (!photonView.IsMine) return;
+        if (string.IsNullOrEmpty(localHex)) return;
 
-        if (!string.IsNullOrEmpty(localHex))
+        // Immediately revert locally, then broadcast so others see the updated lobby color
+        ChangeColor(localHex);
+
+        if (photonView.IsMine)
         {
             photonView.RPC("ChangeColor", RpcTarget.AllBuffered, localHex);
         }
@@ -99,8 +102,7 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
     [PunRPC]
     public void ChangeColor(string hex)
     {
-        if (photonView.IsMine)
-        { localHex = hex; }
+        localHex = hex;
 
         Color converted = PlayfabManager.FromHex(hex);
 
