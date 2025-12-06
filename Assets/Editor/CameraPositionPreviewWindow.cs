@@ -168,6 +168,11 @@ public class CameraPositionPreviewWindow : EditorWindow
     {
         SceneView.duringSceneGui += (sceneView) =>
         {
+            if (!EditorWindow.HasOpenInstances<CameraPositionPreviewWindow>())
+            {
+                return; // Do not recreate the window if it was closed
+            }
+
             var window = GetWindow<CameraPositionPreviewWindow>(false, null, false);
             if (window != null && window.camPosObject != null)
             {

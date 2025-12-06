@@ -26,6 +26,7 @@ public class PlayerAbilityManager : MonoBehaviour
     private List<AbiltySlider> abilitySliders = new List<AbiltySlider>();
 
     private bool subscribed = false;
+    private bool abilitiesEnabled = false;
 
     private void Awake()
     {
@@ -46,6 +47,7 @@ public class PlayerAbilityManager : MonoBehaviour
         if (roundManager != null && !subscribed)
         {
             roundManager.OnRoundStart += OnRoundStart;
+            roundManager.OnIntermissionStart += OnIntermissionStart;
             subscribed = true;
             Debug.Log("PlayerAbilityManager subscribed to RoundManager.OnRoundStart");
         }
@@ -60,6 +62,10 @@ public class PlayerAbilityManager : MonoBehaviour
             Debug.Log("PlayerAbilityManager detected roundActive on OnEnable -> calling OnRoundStart()");
             OnRoundStart();
         }
+        else if (roundManager != null && roundManager.intermissionActive)
+        {
+            OnIntermissionStart();
+        }
     }
 
     private void OnDisable()
@@ -67,6 +73,7 @@ public class PlayerAbilityManager : MonoBehaviour
         if (roundManager != null && subscribed)
         {
             roundManager.OnRoundStart -= OnRoundStart;
+            roundManager.OnIntermissionStart -= OnIntermissionStart;
             subscribed = false;
             Debug.Log("PlayerAbilityManager unsubscribed from RoundManager.OnRoundStart");
         }
@@ -98,6 +105,26 @@ public class PlayerAbilityManager : MonoBehaviour
 
         // Start a coroutine to build UI immediately and again after a short delay
         StartCoroutine(BuildAbilitiesWithDelay());
+
+        abilitiesEnabled = true;
+    }
+
+    private void OnIntermissionStart()
+    {
+        abilitiesEnabled = false;
+        currentMoveset = null;
+        abilityInputs.Clear();
+        cooldownTimers.Clear();
+        cooldownTexts.Clear();
+        abilitySliders.Clear();
+
+        if (abilitiesParent != null)
+        {
+            foreach (Transform child in abilitiesParent)
+            {
+                Destroy(child.gameObject);
+            }
+        }
     }
 
     private IEnumerator BuildAbilitiesWithDelay()
@@ -211,6 +238,9 @@ public class PlayerAbilityManager : MonoBehaviour
         }
 
         if (currentMoveset == null)
+            return;
+
+        if (!abilitiesEnabled || (roundManager != null && !roundManager.roundActive))
             return;
 
         // safety: skip if UI lists not built

@@ -6,6 +6,7 @@ using Photon.Pun;
 public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 {
     private PhotonView pv;
+    private bool isTeleporting;
 
     private void Awake()
     {
@@ -35,32 +36,18 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
     private IEnumerator PerformTeleport(Vector3 targetPosition)
     {
-        Transform rig = transform.Find("RIG");
+        // Avoid overlapping teleports that can stack offsets
+        if (isTeleporting)
+        {
+            yield break;
+        }
+
+        isTeleporting = true;
+
+        Transform rig = GetComponentInChildren<Rig>()?.transform ?? transform.Find("RIG") ?? transform;
 
         // Get all rigidbodies
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
-
-        // Find hip for offset calculation
-        Rigidbody hip = null;
-        foreach (var rb in rbs)
-        {
-            if (rb.name == "Hip")
-            {
-                hip = rb;
-                break;
-            }
-        }
-
-        Vector3 offset;
-        if (hip != null)
-        {
-            offset = targetPosition - hip.position;
-        }
-        else
-        {
-            // No hip found, use the RIG position
-            offset = targetPosition - rig.position;
-        }
 
         // Freeze all rigidbodies
         foreach (var rb in rbs)
@@ -70,17 +57,9 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
             rb.angularVelocity = Vector3.zero;
         }
 
-        // Wait for physics to settle
-        yield return new WaitForFixedUpdate();
-
-        // Move all rigidbodies
-        foreach (var rb in rbs)
-        {
-            rb.position += offset;
-        }
-
-        // Move transforms
-        rig.position += offset;
+        // Move immediately to avoid physics-driven drift between frames
+        rig.position = targetPosition;
+        transform.position = rig.position;
 
         // Force physics update
         Physics.SyncTransforms();
@@ -94,5 +73,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         {
             rb.isKinematic = false;
         }
+
+        isTeleporting = false;
     }
 }
