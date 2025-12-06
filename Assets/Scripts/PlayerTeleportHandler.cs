@@ -6,90 +6,82 @@ using Photon.Pun;
 [RequireComponent(typeof(PhotonView))]
 public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 {
+    [Header("Setup")]
+    [Tooltip("Root of the ragdoll rig. If left null, will try to Find(\"RIG\").")]
+    [SerializeField] private Transform rigRoot;
+
+    [Tooltip("Layer mask used to find valid ground below a spawn point.")]
+    [SerializeField] private LayerMask groundMask = ~0;
+
+    [Tooltip("How far above the ground the player should be placed.")]
+    [SerializeField] private float groundOffset = 0.5f;
+
     private PhotonView pv;
     private bool isTeleporting;
 
     private void Awake()
     {
         pv = GetComponent<PhotonView>();
+        if (rigRoot == null)
+        {
+            var found = transform.Find("RIG");
+            if (found != null) rigRoot = found;
+        }
     }
 
-    // Call this method from PhotonLauncher or any other script to teleport this player
-    public void InitiateTeleport(Vector3 targetPosition, Quaternion? targetRotation = null, bool useOffset = true)
+    /// <summary>
+    /// Call this to teleport this player to a map spawn or intermission spawn.
+    /// For map teleports, prefer useOffset = false so you land exactly on the spawn.
+    /// </summary>
+    public void InitiateTeleport(Vector3 targetPosition, Quaternion? targetRotation = null, bool useOffset = false, bool snapToGround = true)
     {
-        if (pv.IsMine)
+        if (!pv.IsMine)
         {
-            // Send RPC to all clients to teleport this player
-            bool hasRotation = targetRotation.HasValue;
-            Quaternion rotation = targetRotation ?? Quaternion.identity;
-            pv.RPC("NetworkTeleportPlayer", RpcTarget.All, targetPosition, hasRotation, rotation, useOffset);
+            Debug.LogWarning("[Teleport] Cannot teleport a player you don't own!");
+            return;
         }
-        else
-        {
-            Debug.LogWarning("Cannot teleport a player you don't own!");
-        }
+
+        bool hasRotation = targetRotation.HasValue;
+        Quaternion rotation = targetRotation ?? Quaternion.identity;
+
+        pv.RPC("NetworkTeleportPlayer", RpcTarget.All, targetPosition, hasRotation, rotation, useOffset, snapToGround);
     }
 
     [PunRPC]
-    private void NetworkTeleportPlayer(Vector3 targetPosition, bool hasRotation, Quaternion targetRotation, bool useOffset)
+    private void NetworkTeleportPlayer(Vector3 targetPosition, bool hasRotation, Quaternion targetRotation, bool useOffset, bool snapToGround)
     {
-        // This executes on all clients for this specific player
-        StartCoroutine(PerformTeleport(targetPosition, hasRotation ? targetRotation : (Quaternion?)null, useOffset));
+        StartCoroutine(PerformTeleport(targetPosition, hasRotation ? targetRotation : (Quaternion?)null, useOffset, snapToGround));
     }
 
-    private IEnumerator PerformTeleport(Vector3 targetPosition, Quaternion? targetRotation, bool useOffset)
+    private IEnumerator PerformTeleport(Vector3 targetPosition, Quaternion? targetRotation, bool useOffset, bool snapToGround)
     {
-        // Avoid overlapping teleports that can stack offsets
         if (isTeleporting)
-        {
             yield break;
-        }
 
         isTeleporting = true;
 
-        Transform rig = transform.Find("RIG");
-        if (rig == null)
+        Transform rig = rigRoot != null ? rigRoot : transform;
+
+        // Calculate a safe target position (snap to ground if requested)
+        Vector3 finalTargetPos = targetPosition;
+        if (snapToGround)
         {
-            isTeleporting = false;
-            yield break;
-        }
-
-        // Get all rigidbodies and transforms inside the rig (including root)
-        var rbs = rig.GetComponentsInChildren<Rigidbody>();
-        var rigTransforms = rig.GetComponentsInChildren<Transform>();
-
-        // Calculate an offset from the player root to the target position so bones
-        // and Photon transform sync stay aligned with spawns.
-        Vector3 offset = targetPosition - transform.position;
-        Quaternion? rotationOffset = targetRotation.HasValue
-            ? targetRotation.Value * Quaternion.Inverse(transform.rotation)
-            : (Quaternion?)null;
-
-        // Cache the desired world positions so we can reapply them after moving the root
-        var targetPositions = new Dictionary<Transform, Vector3>(rigTransforms.Length);
-        var targetRotations = new Dictionary<Transform, Quaternion>(rigTransforms.Length);
-        var localPositions = new Dictionary<Transform, Vector3>(rigTransforms.Length);
-        var localRotations = new Dictionary<Transform, Quaternion>(rigTransforms.Length);
-        foreach (var t in rigTransforms)
-        {
-            localPositions[t] = t.localPosition;
-            localRotations[t] = t.localRotation;
-
-            if (useOffset)
+            Vector3 rayStart = targetPosition + Vector3.up * 5f;
+            if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 20f, groundMask, QueryTriggerInteraction.Ignore))
             {
-                targetPositions[t] = t.position + offset;
-                targetRotations[t] = rotationOffset.HasValue
-                    ? rotationOffset.Value * t.rotation
-                    : t.rotation;
+                finalTargetPos = hit.point + Vector3.up * groundOffset;
             }
             else
             {
-                targetPositions[t] = t == rig ? targetPosition : Vector3.zero;
-                targetRotations[t] = targetRotation ?? t.rotation;
+                // No ground found – log this so you can fix the spawn point in the scene.
+                Debug.LogWarning($"[Teleport] No ground found below teleport target at {targetPosition}. Using raw position.");
             }
         }
 
-        // Freeze all rigidbodies
+        // Gather rig rigidbodies (ragdoll pieces)
+        var rbs = rig.GetComponentsInChildren<Rigidbody>();
+
+        // Freeze physics
         foreach (var rb in rbs)
         {
             rb.isKinematic = true;
@@ -98,62 +90,48 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
             rb.Sleep();
         }
 
-        // Wait for physics to settle
+        // Wait for one fixed-step to make sure all physics has settled
         yield return new WaitForFixedUpdate();
 
         if (useOffset)
         {
-            // Move the player root so Photon sync stays aligned
+            // Move relative to current position (for short-range teleports / knockbacks)
+            Vector3 offset = finalTargetPos - transform.position;
+            Quaternion? rotationOffset = targetRotation.HasValue
+                ? targetRotation.Value * Quaternion.Inverse(transform.rotation)
+                : (Quaternion?)null;
+
             transform.position += offset;
             if (rotationOffset.HasValue)
-            {
                 transform.rotation = rotationOffset.Value * transform.rotation;
-            }
 
-            // Shift the rig root, then reapply the cached world positions to children
-            rig.position = targetPositions[rig];
-            rig.rotation = targetRotations[rig];
-            foreach (var t in rigTransforms)
-            {
-                if (t == rig) continue;
-                t.position = targetPositions[t];
-                t.rotation = targetRotations[t];
-            }
+            rig.position += offset;
+            if (rotationOffset.HasValue)
+                rig.rotation = rotationOffset.Value * rig.rotation;
         }
         else
         {
-            transform.position = targetPosition;
+            // Hard snap to spawn point (recommended for map / intermission teleports)
+            transform.position = finalTargetPos;
+            rig.position = finalTargetPos;
+
             if (targetRotation.HasValue)
             {
                 transform.rotation = targetRotation.Value;
-            }
-
-            rig.position = targetPosition;
-            if (targetRotation.HasValue)
-            {
                 rig.rotation = targetRotation.Value;
-            }
-
-            foreach (var t in rigTransforms)
-            {
-                if (t == rig) continue;
-
-                t.localPosition = localPositions[t];
-                t.localRotation = localRotations[t];
             }
         }
 
-        // Keep rigidbody positions in sync with updated transforms
+        // Sync transforms -> rigidbodies
         foreach (var rb in rbs)
         {
             rb.position = rb.transform.position;
             rb.rotation = rb.transform.rotation;
         }
 
-        // Force physics update
         Physics.SyncTransforms();
 
-        // Unfreeze rigidbodies on the next fixed update to avoid drift
+        // Unfreeze next fixed update
         StartCoroutine(UnfreezeRigidbodiesNextFixedUpdate(rbs));
 
         isTeleporting = false;
