@@ -16,6 +16,12 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
         roundManager = GameObject.Find("Multiplayer").GetComponent<RoundManager>();
         roundManager.OnRoundStart += RoundStarted;
         roundManager.OnIntermissionStart += IntermissionStarted;
+
+        // If we join while an intermission is already running, immediately restore player color
+        if (roundManager.intermissionActive)
+        {
+            IntermissionStarted();
+        }
     }
 
     private void RoundStarted()

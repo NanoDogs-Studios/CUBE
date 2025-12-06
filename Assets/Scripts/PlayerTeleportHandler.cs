@@ -6,6 +6,7 @@ using Photon.Pun;
 public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 {
     private PhotonView pv;
+    private bool isTeleporting;
 
     private void Awake()
     {
@@ -35,6 +36,14 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
     private IEnumerator PerformTeleport(Vector3 targetPosition)
     {
+        // Avoid overlapping teleports that can stack offsets
+        if (isTeleporting)
+        {
+            yield break;
+        }
+
+        isTeleporting = true;
+
         Transform rig = transform.Find("RIG");
 
         // Get all rigidbodies
@@ -81,6 +90,14 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
         // Move transforms
         rig.position += offset;
+        transform.position += offset;
+
+        // Force Photon to snap instead of interpolating a huge offset
+        var transformView = GetComponent<PhotonTransformViewClassic>();
+        if (transformView != null)
+        {
+            transformView.TeleportTo(transform.position, transform.rotation);
+        }
 
         // Force physics update
         Physics.SyncTransforms();
@@ -94,5 +111,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         {
             rb.isKinematic = false;
         }
+
+        isTeleporting = false;
     }
 }
