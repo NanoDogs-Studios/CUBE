@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
@@ -30,8 +29,8 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// Call this to teleport this player to a map spawn or intermission spawn.
-    /// For map teleports, prefer useOffset = false so you land exactly on the spawn.
+    /// Teleport this player to a world-space position/rotation.
+    /// For map / intermission spawns, call with useOffset = false (default).
     /// </summary>
     public void InitiateTeleport(Vector3 targetPosition, Quaternion? targetRotation = null, bool useOffset = false, bool snapToGround = true)
     {
@@ -44,7 +43,8 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         bool hasRotation = targetRotation.HasValue;
         Quaternion rotation = targetRotation ?? Quaternion.identity;
 
-        pv.RPC("NetworkTeleportPlayer", RpcTarget.All, targetPosition, hasRotation, rotation, useOffset, snapToGround);
+        // Buffered so late joiners also get the last teleport
+        pv.RPC("NetworkTeleportPlayer", RpcTarget.AllBuffered, targetPosition, hasRotation, rotation, useOffset, snapToGround);
     }
 
     [PunRPC]
@@ -62,7 +62,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
         Transform rig = rigRoot != null ? rigRoot : transform;
 
-        // Calculate a safe target position (snap to ground if requested)
+        // 1) Calculate safe target position
         Vector3 finalTargetPos = targetPosition;
         if (snapToGround)
         {
@@ -73,15 +73,12 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
             }
             else
             {
-                // No ground found – log this so you can fix the spawn point in the scene.
                 Debug.LogWarning($"[Teleport] No ground found below teleport target at {targetPosition}. Using raw position.");
             }
         }
 
-        // Gather rig rigidbodies (ragdoll pieces)
+        // 2) Gather and freeze rigidbodies
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
-
-        // Freeze physics
         foreach (var rb in rbs)
         {
             rb.isKinematic = true;
@@ -90,39 +87,19 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
             rb.Sleep();
         }
 
-        // Wait for one fixed-step to make sure all physics has settled
         yield return new WaitForFixedUpdate();
 
-        if (useOffset)
+        // 3) Hard snap root + rig to the final target (ignore offset for now to avoid drift)
+        transform.position = finalTargetPos;
+        rig.position = finalTargetPos;
+
+        if (targetRotation.HasValue)
         {
-            // Move relative to current position (for short-range teleports / knockbacks)
-            Vector3 offset = finalTargetPos - transform.position;
-            Quaternion? rotationOffset = targetRotation.HasValue
-                ? targetRotation.Value * Quaternion.Inverse(transform.rotation)
-                : (Quaternion?)null;
-
-            transform.position += offset;
-            if (rotationOffset.HasValue)
-                transform.rotation = rotationOffset.Value * transform.rotation;
-
-            rig.position += offset;
-            if (rotationOffset.HasValue)
-                rig.rotation = rotationOffset.Value * rig.rotation;
-        }
-        else
-        {
-            // Hard snap to spawn point (recommended for map / intermission teleports)
-            transform.position = finalTargetPos;
-            rig.position = finalTargetPos;
-
-            if (targetRotation.HasValue)
-            {
-                transform.rotation = targetRotation.Value;
-                rig.rotation = targetRotation.Value;
-            }
+            transform.rotation = targetRotation.Value;
+            rig.rotation = targetRotation.Value;
         }
 
-        // Sync transforms -> rigidbodies
+        // 4) Sync transforms -> rigidbodies
         foreach (var rb in rbs)
         {
             rb.position = rb.transform.position;
@@ -131,7 +108,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
         Physics.SyncTransforms();
 
-        // Unfreeze next fixed update
+        // 5) Unfreeze next fixed update
         StartCoroutine(UnfreezeRigidbodiesNextFixedUpdate(rbs));
 
         isTeleporting = false;

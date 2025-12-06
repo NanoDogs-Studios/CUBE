@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: GlitchShard
   m_EditorClassIdentifier: Assembly-CSharp::GlitchShard
   AbilityName: Glitch Cube
-  AbilityIcon: {fileID: 21300000, guid: 1b7e4e5edb744cd4a822ba7d21bbe7b2, type: 3}
-  AbilityIconGrayscale: {fileID: 21300000, guid: 65739a9d8944bad4e8a4013969f09fa9, type: 3}
+  AbilityIcon: {fileID: 21300000, guid: 1f206dc78133e47498fc6340e1f189df, type: 3}
+  AbilityIconGrayscale: {fileID: 21300000, guid: 6ad592b5479e38c4e9c46f57d385b69c, type: 3}
   AbilityCooldown: 10
   AbilityActivation: {fileID: 8261794699482648619, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   cubeMesh: {fileID: -5495902117074765545, guid: 8941ea01eaf338b4984b6ea29d5b5af2, type: 3}
