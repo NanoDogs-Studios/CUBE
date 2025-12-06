@@ -72,7 +72,13 @@ public class DeathSC : MonoBehaviour
         rig.control = 1;
 
         // teleport
-        photonLauncher.TeleportPlayer(photonLauncher.intermissionSpawn.position, photonLauncher.intermissionSpawn.rotation);
+        Vector3 spawnPos = photonLauncher.roundManager != null
+            ? photonLauncher.roundManager.SyncedIntermissionSpawnPos
+            : photonLauncher.intermissionSpawn.position;
+        Quaternion? spawnRot = photonLauncher.roundManager != null
+            ? photonLauncher.roundManager.SyncedIntermissionSpawnRot
+            : photonLauncher.intermissionSpawn.rotation;
+        photonLauncher.TeleportPlayer(spawnPos, spawnRot, false);
 
         // allow death to happen again
         died = false;

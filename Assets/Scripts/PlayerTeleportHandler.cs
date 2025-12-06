@@ -15,14 +15,14 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
     }
 
     // Call this method from PhotonLauncher or any other script to teleport this player
-    public void InitiateTeleport(Vector3 targetPosition, Quaternion? targetRotation = null)
+    public void InitiateTeleport(Vector3 targetPosition, Quaternion? targetRotation = null, bool useOffset = true)
     {
         if (pv.IsMine)
         {
             // Send RPC to all clients to teleport this player
             bool hasRotation = targetRotation.HasValue;
             Quaternion rotation = targetRotation ?? Quaternion.identity;
-            pv.RPC("NetworkTeleportPlayer", RpcTarget.All, targetPosition, hasRotation, rotation);
+            pv.RPC("NetworkTeleportPlayer", RpcTarget.All, targetPosition, hasRotation, rotation, useOffset);
         }
         else
         {
@@ -31,13 +31,13 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void NetworkTeleportPlayer(Vector3 targetPosition, bool hasRotation, Quaternion targetRotation)
+    private void NetworkTeleportPlayer(Vector3 targetPosition, bool hasRotation, Quaternion targetRotation, bool useOffset)
     {
         // This executes on all clients for this specific player
-        StartCoroutine(PerformTeleport(targetPosition, hasRotation ? targetRotation : (Quaternion?)null));
+        StartCoroutine(PerformTeleport(targetPosition, hasRotation ? targetRotation : (Quaternion?)null, useOffset));
     }
 
-    private IEnumerator PerformTeleport(Vector3 targetPosition, Quaternion? targetRotation)
+    private IEnumerator PerformTeleport(Vector3 targetPosition, Quaternion? targetRotation, bool useOffset)
     {
         // Avoid overlapping teleports that can stack offsets
         if (isTeleporting)
@@ -58,15 +58,35 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
         var rigTransforms = rig.GetComponentsInChildren<Transform>();
 
-        // Calculate an offset from the rig root to the target position so bones
-        // are shifted consistently.
-        Vector3 offset = targetPosition - rig.position;
+        // Calculate an offset from the player root to the target position so bones
+        // and Photon transform sync stay aligned with spawns.
+        Vector3 offset = targetPosition - transform.position;
+        Quaternion? rotationOffset = targetRotation.HasValue
+            ? targetRotation.Value * Quaternion.Inverse(transform.rotation)
+            : (Quaternion?)null;
 
         // Cache the desired world positions so we can reapply them after moving the root
         var targetPositions = new Dictionary<Transform, Vector3>(rigTransforms.Length);
+        var targetRotations = new Dictionary<Transform, Quaternion>(rigTransforms.Length);
+        var localPositions = new Dictionary<Transform, Vector3>(rigTransforms.Length);
+        var localRotations = new Dictionary<Transform, Quaternion>(rigTransforms.Length);
         foreach (var t in rigTransforms)
         {
-            targetPositions[t] = t.position + offset;
+            localPositions[t] = t.localPosition;
+            localRotations[t] = t.localRotation;
+
+            if (useOffset)
+            {
+                targetPositions[t] = t.position + offset;
+                targetRotations[t] = rotationOffset.HasValue
+                    ? rotationOffset.Value * t.rotation
+                    : t.rotation;
+            }
+            else
+            {
+                targetPositions[t] = t == rig ? targetPosition : Vector3.zero;
+                targetRotations[t] = targetRotation ?? t.rotation;
+            }
         }
 
         // Freeze all rigidbodies
@@ -81,18 +101,53 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         // Wait for physics to settle
         yield return new WaitForFixedUpdate();
 
-        // Shift the rig root, then reapply the cached world positions to children
-        rig.position = targetPositions[rig];
-        foreach (var t in rigTransforms)
+        if (useOffset)
         {
-            if (t == rig) continue;
-            t.position = targetPositions[t];
+            // Move the player root so Photon sync stays aligned
+            transform.position += offset;
+            if (rotationOffset.HasValue)
+            {
+                transform.rotation = rotationOffset.Value * transform.rotation;
+            }
+
+            // Shift the rig root, then reapply the cached world positions to children
+            rig.position = targetPositions[rig];
+            rig.rotation = targetRotations[rig];
+            foreach (var t in rigTransforms)
+            {
+                if (t == rig) continue;
+                t.position = targetPositions[t];
+                t.rotation = targetRotations[t];
+            }
+        }
+        else
+        {
+            transform.position = targetPosition;
+            if (targetRotation.HasValue)
+            {
+                transform.rotation = targetRotation.Value;
+            }
+
+            rig.position = targetPosition;
+            if (targetRotation.HasValue)
+            {
+                rig.rotation = targetRotation.Value;
+            }
+
+            foreach (var t in rigTransforms)
+            {
+                if (t == rig) continue;
+
+                t.localPosition = localPositions[t];
+                t.localRotation = localRotations[t];
+            }
         }
 
         // Keep rigidbody positions in sync with updated transforms
         foreach (var rb in rbs)
         {
             rb.position = rb.transform.position;
+            rb.rotation = rb.transform.rotation;
         }
 
         // Force physics update

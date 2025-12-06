@@ -99,6 +99,11 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
         }
     }
 
+    public string GetCurrentHex()
+    {
+        return localHex;
+    }
+
     [PunRPC]
     public void ChangeColor(string hex)
     {
