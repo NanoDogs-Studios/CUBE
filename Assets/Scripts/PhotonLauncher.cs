@@ -112,14 +112,8 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
 
         foreach (var rb in rbs)
         {
-            rb.isKinematic = true;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
             rb.position += offset;
         }
-
-        rig.position += offset;
-        player.transform.position = targetPosition;
 
         // Force physics sync
         Physics.SyncTransforms();

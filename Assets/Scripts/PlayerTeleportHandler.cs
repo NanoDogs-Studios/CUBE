@@ -52,7 +52,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         // Calculate an offset that snaps the player's root to the target spawn
         // position instead of trying to align to a specific bone (which could
         // be offset or animated away from the root).
-        Vector3 offset = targetPosition - transform.position;
+        Vector3 offset = targetPosition - rig.position;
 
         // Freeze all rigidbodies
         foreach (var rb in rbs)
@@ -62,10 +62,11 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
             rb.angularVelocity = Vector3.zero;
         }
 
-        // Wait for physics to settle
-        yield return new WaitForFixedUpdate();
+        // Move immediately to avoid physics-driven drift between frames
+        rig.position = targetPosition;
+        transform.position = rig.position;
 
-        // Move all rigidbodies
+        // Ensure every body stays aligned with the new root position
         foreach (var rb in rbs)
         {
             rb.position += offset;
@@ -74,13 +75,6 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         // Move transforms
         rig.position += offset;
         transform.position += offset;
-
-        // Force Photon to snap instead of interpolating a huge offset
-        var transformView = GetComponent<PhotonTransformViewClassic>();
-        if (transformView != null)
-        {
-            transformView.TeleportTo(transform.position, transform.rotation);
-        }
 
         // Force physics update
         Physics.SyncTransforms();

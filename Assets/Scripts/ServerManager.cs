@@ -51,7 +51,7 @@ public class ServerManager : MonoBehaviourPunCallbacks
         // only the Master Client assigns roles
         if (PhotonNetwork.IsMasterClient)
         {
-            photonView.RPC("HandleRoundStart", RpcTarget.MasterClient);
+            HandleRoundStart();
         }
     }
 
