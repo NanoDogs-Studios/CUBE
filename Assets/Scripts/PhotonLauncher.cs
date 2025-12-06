@@ -108,7 +108,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
 
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
 
-        Vector3 offset = targetPosition - player.transform.position;
+        Vector3 offset = targetPosition - rig.position;
 
         foreach (var rb in rbs)
         {
@@ -119,7 +119,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
         }
 
         rig.position += offset;
-        player.transform.position = targetPosition;
+        player.transform.position = rig.position;
 
         // Force physics sync
         Physics.SyncTransforms();

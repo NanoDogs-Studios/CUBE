@@ -64,9 +64,16 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         // Wait for physics to settle
         yield return new WaitForFixedUpdate();
 
-        // Move transforms once so the rig, root, and all children align to the
-        // target without compounding offsets.
-        transform.position += offset;
+        // Move the rig directly so it lands on the target position instead of
+        // shifting the BaseCharacter root (which is offset from the rig).
+        rig.position += offset;
+
+        // Keep the networked root aligned to the rig's world position so
+        // Photon continues to sync the correct coordinates.
+        if (transform != rig)
+        {
+            transform.position = rig.position;
+        }
 
         // Force Photon to snap instead of interpolating a huge offset
         var transformView = GetComponent<PhotonTransformViewClassic>();
