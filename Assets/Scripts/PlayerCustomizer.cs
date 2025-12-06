@@ -15,6 +15,13 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
     {
         roundManager = GameObject.Find("Multiplayer").GetComponent<RoundManager>();
         roundManager.OnRoundStart += RoundStarted;
+        roundManager.OnIntermissionStart += IntermissionStarted;
+
+        // If we join while an intermission is already running, immediately restore player color
+        if (roundManager.intermissionActive)
+        {
+            IntermissionStarted();
+        }
     }
 
     private void RoundStarted()
@@ -34,6 +41,25 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
         {
             string survivorID = basePlayer.GetEquippedSurvivor()._Name;
             photonView.RPC("SetSurvivorCustomisationByName", RpcTarget.AllBuffered, survivorID);
+        }
+    }
+
+    private void IntermissionStarted()
+    {
+        if (!photonView.IsMine) return;
+
+        if (!string.IsNullOrEmpty(localHex))
+        {
+            photonView.RPC("ChangeColor", RpcTarget.AllBuffered, localHex);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (roundManager != null)
+        {
+            roundManager.OnRoundStart -= RoundStarted;
+            roundManager.OnIntermissionStart -= IntermissionStarted;
         }
     }
 
