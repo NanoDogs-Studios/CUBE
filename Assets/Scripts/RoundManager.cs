@@ -101,11 +101,11 @@ public class RoundManager : MonoBehaviourPunCallbacks
 
                 if (basePlayer.GetPlayerType() == BasePlayer.PlayerType.Survivor)
                 {
-                    stats.photonView.RPC("AdjustMalice", pv.Owner, +1);
+                    stats.photonView.RPC("AdjustMalice", RpcTarget.AllBuffered, +1);
                 }
                 else if (basePlayer.GetPlayerType() == BasePlayer.PlayerType.Killer)
                 {
-                    stats.photonView.RPC("AdjustMalice", pv.Owner, -5);
+                    stats.photonView.RPC("AdjustMalice", RpcTarget.AllBuffered, -5);
                 }
             }
         }
