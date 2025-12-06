@@ -2,6 +2,7 @@ using Photon.Pun;
 using System;
 using System.Collections;
 using UnityEngine;
+using Photon.Realtime;
 
 public class RoundManager : MonoBehaviourPunCallbacks
 {
@@ -29,6 +30,20 @@ public class RoundManager : MonoBehaviourPunCallbacks
         {
             photonView.RPC("StartIntermission", RpcTarget.All);
         }
+    }
+
+    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        // Send the current round state so late joiners keep timers, roles, and teleports in sync
+        photonView.RPC(
+            "SyncState",
+            newPlayer,
+            roundActive,
+            intermissionActive,
+            currentTime
+        );
     }
 
     [PunRPC]
@@ -63,6 +78,33 @@ public class RoundManager : MonoBehaviourPunCallbacks
         timerCoroutine = StartCoroutine(Timer());
 
         OnIntermissionStart?.Invoke();
+    }
+
+    [PunRPC]
+    private void SyncState(bool roundActiveState, bool intermissionActiveState, int timeRemaining)
+    {
+        roundActive = roundActiveState;
+        intermissionActive = intermissionActiveState;
+        currentTime = timeRemaining;
+
+        if (timerCoroutine != null)
+        {
+            StopCoroutine(timerCoroutine);
+        }
+
+        if (roundActive || intermissionActive)
+        {
+            timerCoroutine = StartCoroutine(Timer());
+
+            if (intermissionActive)
+            {
+                OnIntermissionStart?.Invoke();
+            }
+            else if (roundActive)
+            {
+                OnRoundStart?.Invoke();
+            }
+        }
     }
 
     private IEnumerator Timer()

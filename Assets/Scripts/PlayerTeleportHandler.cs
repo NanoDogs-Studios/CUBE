@@ -75,6 +75,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
             rb.isKinematic = true;
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
+            rb.Sleep();
         }
 
         // Wait for physics to settle
