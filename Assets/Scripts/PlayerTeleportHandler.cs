@@ -92,13 +92,6 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         rig.position += offset;
         transform.position += offset;
 
-        // Force Photon to snap instead of interpolating a huge offset
-        var transformView = GetComponent<PhotonTransformViewClassic>();
-        if (transformView != null)
-        {
-            transformView.TeleportTo(transform.position, transform.rotation);
-        }
-
         // Force physics update
         Physics.SyncTransforms();
 
