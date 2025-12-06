@@ -5373,7 +5373,7 @@ GameObject:
   - component: {fileID: 776051107670459183}
   - component: {fileID: 2757183285728168176}
   - component: {fileID: 6057265854288984646}
-  - component: {fileID: 6236658264408242413}
+  - component: {fileID: 1522043038406370434}
   m_Layer: 8
   m_Name: BaseCharacter
   m_TagString: Player
@@ -5605,7 +5605,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 126494ae2a10a34499272ed97a6c9f5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PhotonVoice.PUN::Photon.Voice.PUN.PhotonVoiceView
---- !u!114 &6236658264408242413
+--- !u!114 &1522043038406370434
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6072,6 +6072,8 @@ GameObject:
   - component: {fileID: 5396177211074206523}
   - component: {fileID: 8651497848301310979}
   - component: {fileID: 6251008360216944659}
+  - component: {fileID: 2284403392507864247}
+  - component: {fileID: 8193172841836336505}
   m_Layer: 8
   m_Name: RIG
   m_TagString: Player
@@ -6460,6 +6462,40 @@ MonoBehaviour:
   stats: {fileID: 6258506952167929150}
   scriptsToDisableOnDeath:
   - {fileID: 1040637724107135775}
+--- !u!114 &2284403392507864247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5011767928945711400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonView
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &8193172841836336505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5011767928945711400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5473af0b062c9db4683bedaef24bdc4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &5090083642225568710
 GameObject:
   m_ObjectHideFlags: 0
