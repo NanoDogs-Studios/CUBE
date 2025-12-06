@@ -52,7 +52,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         // Calculate an offset that snaps the player's root to the target spawn
         // position instead of trying to align to a specific bone (which could
         // be offset or animated away from the root).
-        Vector3 offset = targetPosition - transform.position;
+        Vector3 offset = targetPosition - rig.position;
 
         // Freeze all rigidbodies
         foreach (var rb in rbs)
@@ -61,10 +61,6 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
-
-        // Calculate an offset from the rig's root so the RIG object (and, by
-        // extension, the entire player) lands exactly on the spawn position.
-        Vector3 offset = targetPosition - rig.position;
 
         // Move immediately to avoid physics-driven drift between frames
         rig.position = targetPosition;
@@ -79,13 +75,6 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         // Move transforms
         rig.position += offset;
         transform.position += offset;
-
-        // Force Photon to snap instead of interpolating a huge offset
-        var transformView = GetComponent<PhotonTransformViewClassic>();
-        if (transformView != null)
-        {
-            transformView.TeleportTo(transform.position, transform.rotation);
-        }
 
         // Force physics update
         Physics.SyncTransforms();
