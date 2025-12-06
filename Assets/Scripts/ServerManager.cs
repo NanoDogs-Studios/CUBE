@@ -17,12 +17,17 @@ public class ServerManager : MonoBehaviourPunCallbacks
         roundManager.OnRoundStart += RoundStartedRPC;
     }
 
+    private void OnDestroy()
+    {
+        if (roundManager != null)
+        {
+            roundManager.OnRoundStart -= RoundStartedRPC;
+        }
+    }
+
     private void Update()
     {
         CachePlayers();
-        //allBasePlayers = FindObjectsByType<BasePlayer>(FindObjectsSortMode.None);
-        // skip any null entries or players without "BaseCharacter" in the name
-        //allBasePlayers = Array.FindAll(allBasePlayers, p => p != null && p.name.Contains("BaseCharacter"));
     }
 
     private void CachePlayers()
@@ -49,10 +54,10 @@ public class ServerManager : MonoBehaviourPunCallbacks
     public void RoundStartedRPC()
     {
         // only the Master Client assigns roles
-        if (PhotonNetwork.IsMasterClient)
-        {
-            photonView.RPC("HandleRoundStart", RpcTarget.MasterClient);
-        }
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        // No need to RPC to ourselves; just call directly
+        HandleRoundStart();
     }
 
     [PunRPC]
@@ -70,6 +75,8 @@ public class ServerManager : MonoBehaviourPunCallbacks
         // PICK HIGHEST MALICE
         foreach (GameObject player in allPlayers)
         {
+            if (player == null) continue;
+
             BasePlayerStats stats = player.GetComponent<BasePlayerStats>();
             if (stats == null) continue;
 
@@ -91,19 +98,57 @@ public class ServerManager : MonoBehaviourPunCallbacks
             highestMalicePlayer = contenders[chosenIndex];
         }
 
-        // ASSIGN ROLES
+        // ASSIGN ROLES + CHARACTER SKINS
         foreach (GameObject player in allPlayers)
         {
+            if (player == null) continue;
+
             PhotonView pv = player.GetPhotonView();
-            if (pv == null) continue;
+            BasePlayer basePlayer = player.GetComponent<BasePlayer>();
+            PlayerCustomizer customizer = player.GetComponent<PlayerCustomizer>();
+
+            if (pv == null || basePlayer == null || customizer == null)
+                continue;
 
             PlayerType type = (player == highestMalicePlayer)
                 ? PlayerType.Killer
                 : PlayerType.Survivor;
 
+            // 1) Tell everyone what role this player is
             pv.RPC("SetPlayerType", RpcTarget.AllBuffered, type);
+
+            // 2) Decide which character ID to use based on equipped Malice selection
+            string characterId = null;
+
+            if (type == PlayerType.Killer)
+            {
+                KillerType killer = basePlayer.GetEquippedKiller();
+                if (killer == null)
+                {
+                    Debug.LogWarning($"[ServerManager] Player {player.name} has no equipped KillerType.");
+                    continue;
+                }
+                characterId = killer._Name;
+            }
+            else
+            {
+                SurvivorType survivor = basePlayer.GetEquippedSurvivor();
+                if (survivor == null)
+                {
+                    Debug.LogWarning($"[ServerManager] Player {player.name} has no equipped SurvivorType.");
+                    continue;
+                }
+                characterId = survivor._Name;
+            }
+
+            // 3) Apply role + character skin to every client via PlayerCustomizer
+            PhotonView customizerPV = customizer.photonView;
+            customizerPV.RPC(
+                "ApplyRoleAndCharacter",
+                RpcTarget.AllBuffered,
+                type,
+                characterId
+            );
         }
     }
-
-
 }
