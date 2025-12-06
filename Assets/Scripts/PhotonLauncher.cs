@@ -110,7 +110,6 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
         var rigTransforms = rig.GetComponentsInChildren<Transform>();
 
         Vector3 offset = targetPosition - rig.position;
-        Transform root = player.transform;
         Quaternion? rotationOffset = null;
         var targetPositions = new Dictionary<Transform, Vector3>(rigTransforms.Length);
         var targetRotations = new Dictionary<Transform, Quaternion>(rigTransforms.Length);
@@ -133,12 +132,6 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
             rb.angularVelocity = Vector3.zero;
         }
 
-        root.position += offset;
-        if (rotationOffset.HasValue)
-        {
-            root.rotation = rotationOffset.Value * root.rotation;
-        }
-
         rig.position = targetPositions[rig];
         if (rotationOffset.HasValue)
         {
@@ -159,10 +152,6 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
         foreach (var rb in rbs)
         {
             rb.position = rb.transform.position;
-            if (rotationOffset.HasValue)
-            {
-                rb.rotation = rb.transform.rotation;
-            }
         }
 
         // Force physics sync
