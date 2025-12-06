@@ -6,6 +6,7 @@ using Photon.Pun;
 public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 {
     private PhotonView pv;
+    private bool isTeleporting;
 
     private void Awake()
     {
@@ -35,32 +36,23 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
     private IEnumerator PerformTeleport(Vector3 targetPosition)
     {
+        // Avoid overlapping teleports that can stack offsets
+        if (isTeleporting)
+        {
+            yield break;
+        }
+
+        isTeleporting = true;
+
         Transform rig = transform.Find("RIG");
 
         // Get all rigidbodies
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
 
-        // Find hip for offset calculation
-        Rigidbody hip = null;
-        foreach (var rb in rbs)
-        {
-            if (rb.name == "Hip")
-            {
-                hip = rb;
-                break;
-            }
-        }
-
-        Vector3 offset;
-        if (hip != null)
-        {
-            offset = targetPosition - hip.position;
-        }
-        else
-        {
-            // No hip found, use the RIG position
-            offset = targetPosition - rig.position;
-        }
+        // Calculate an offset that snaps the player's root to the target spawn
+        // position instead of trying to align to a specific bone (which could
+        // be offset or animated away from the root).
+        Vector3 offset = targetPosition - transform.position;
 
         // Freeze all rigidbodies
         foreach (var rb in rbs)
@@ -81,6 +73,14 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
 
         // Move transforms
         rig.position += offset;
+        transform.position += offset;
+
+        // Force Photon to snap instead of interpolating a huge offset
+        var transformView = GetComponent<PhotonTransformViewClassic>();
+        if (transformView != null)
+        {
+            transformView.TeleportTo(transform.position, transform.rotation);
+        }
 
         // Force physics update
         Physics.SyncTransforms();
@@ -94,5 +94,7 @@ public class PlayerTeleportHandler : MonoBehaviourPunCallbacks
         {
             rb.isKinematic = false;
         }
+
+        isTeleporting = false;
     }
 }

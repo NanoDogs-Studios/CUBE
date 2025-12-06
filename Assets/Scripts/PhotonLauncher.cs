@@ -108,13 +108,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
 
         var rbs = rig.GetComponentsInChildren<Rigidbody>();
 
-        Rigidbody hip = null;
-        foreach (var rb in rbs)
-        {
-            if (rb.name == "Hip") { hip = rb; break; }
-        }
-
-        Vector3 offset = hip != null ? targetPosition - hip.position : targetPosition - rig.position;
+        Vector3 offset = targetPosition - player.transform.position;
 
         foreach (var rb in rbs)
         {
