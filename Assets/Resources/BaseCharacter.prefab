@@ -5617,11 +5617,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5473af0b062c9db4683bedaef24bdc4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  rigRoot: {fileID: 0}
+  rigRoot: {fileID: 6937505995580553567}
   groundMask:
     serializedVersion: 2
-    m_Bits: 4294967295
-  groundOffset: 0.5
+    m_Bits: 1
+  groundOffset: 2
 --- !u!1 &4385198401687824320
 GameObject:
   m_ObjectHideFlags: 0

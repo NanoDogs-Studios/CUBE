@@ -86,7 +86,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 373844575674364243}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0.32964125, z: 0, w: 0.9441063}
   m_LocalPosition: {x: -0.80000025, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -94,7 +94,7 @@ Transform:
   - {fileID: 2088602207754697329}
   - {fileID: 5128288624149934808}
   m_Father: {fileID: 3192404184560558977}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 38.494, z: 0}
 --- !u!54 &7368891382050989657
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -507,15 +507,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1512430147507010707}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.39999968, y: 1.0959997, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0.11899324, y: 0.57911354, z: 0.5045108, w: 0.6292352}
+  m_LocalPosition: {x: -0.19999984, y: 1.6489997, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6504009040542477289}
   - {fileID: 816736714297610036}
-  m_Father: {fileID: 4899212082717159657}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 714244310535269124}
+  m_LocalEulerAnglesHint: {x: 6.14, y: 52.678, z: 62.271}
 --- !u!54 &7307757971393588402
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -993,7 +993,7 @@ GameObject:
   - component: {fileID: 714244310535269124}
   - component: {fileID: 5776401975736072747}
   m_Layer: 8
-  m_Name: 1RightArmUp
+  m_Name: Dance Frame3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1007,12 +1007,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1873591939615622494}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.9999971, z: -0, w: 0.0024321813}
-  m_LocalPosition: {x: -0.0021136757, y: -0.19, z: -0.057202548}
+  m_LocalRotation: {x: 0, y: -0.3563466, z: 0, w: 0.9343539}
+  m_LocalPosition: {x: -0.043443915, y: -0.19, z: -0.0065770745}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4149330153894894614}
   - {fileID: 4899212082717159657}
+  - {fileID: 3192404184560558977}
+  - {fileID: 7491276048031369539}
   - {fileID: 8923885682453858133}
   - {fileID: 2676829028958196207}
   - {fileID: 1886260667269926468}
@@ -1021,7 +1024,7 @@ Transform:
   - {fileID: 2908775014326764901}
   - {fileID: 8090998220231211769}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -41.752, z: 0}
 --- !u!114 &5776401975736072747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1042,9 +1045,9 @@ MonoBehaviour:
   - target: {fileID: 4149330153894894614}
     enabled: 0
   - target: {fileID: 3192404184560558977}
-    enabled: 0
+    enabled: 1
   - target: {fileID: 816736714297610036}
-    enabled: 0
+    enabled: 1
   - target: {fileID: 5128288624149934808}
     enabled: 0
   - target: {fileID: 7491276048031369539}
@@ -1052,7 +1055,7 @@ MonoBehaviour:
   - target: {fileID: 4497886045522755295}
     enabled: 1
   - target: {fileID: 7098672378229851166}
-    enabled: 0
+    enabled: 1
   - target: {fileID: 2676829028958196207}
     enabled: 0
   - target: {fileID: 1886260667269926468}
@@ -1095,7 +1098,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1997064965693206330}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1.1009998, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
@@ -1103,9 +1106,6 @@ Transform:
   - {fileID: 187509835434844225}
   - {fileID: 2700037140810116331}
   - {fileID: 2675864026909568902}
-  - {fileID: 4149330153894894614}
-  - {fileID: 3192404184560558977}
-  - {fileID: 7491276048031369539}
   m_Father: {fileID: 714244310535269124}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &4520730385550317575
@@ -1752,15 +1752,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3269619358470841965}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.061451606, y: 0.307918, z: -0.26441804, w: 0.91186255}
-  m_LocalPosition: {x: 0.39999962, y: 1.0959997, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0.35013038, y: -0.19517377, z: -0.23967704, w: 0.88423467}
+  m_LocalPosition: {x: 0.19999984, y: 1.6489997, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5744778189172809540}
   - {fileID: 4497886045522755295}
-  m_Father: {fileID: 4899212082717159657}
-  m_LocalEulerAnglesHint: {x: 2.91, y: 36.5, z: -31.382}
+  m_Father: {fileID: 714244310535269124}
+  m_LocalEulerAnglesHint: {x: 6.141, y: -52.678, z: -62.271}
 --- !u!54 &2318190854263063146
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3370,7 +3370,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6122799523032600250}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.32964116, z: 0, w: 0.94410634}
+  m_LocalRotation: {x: -0.000000047798896, y: -0.32964456, z: -0.00000005852385, w: 0.94410515}
   m_LocalPosition: {x: 0.8000011, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3973,15 +3973,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7591839752927978970}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000014901161, y: -0.000001128763, z: 0.00000010151416, w: 1}
-  m_LocalPosition: {x: 0, y: 1.4236002, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.8127999, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5141592255897684911}
   - {fileID: 8235551349098393982}
   - {fileID: 2332352018353724665}
-  m_Father: {fileID: 4899212082717159657}
+  m_Father: {fileID: 714244310535269124}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &4811950154764410460
 Rigidbody:

@@ -46,7 +46,7 @@
                     "name": "Crouch",
                     "type": "Button",
                     "id": "27c5f898-bc57-4ee1-8800-db469aca5fe3",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -64,7 +64,7 @@
                     "name": "Previous",
                     "type": "Button",
                     "id": "2776c80d-3c14-4091-8c56-d04ced07a2b0",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -154,6 +154,15 @@
                     "name": "Shop",
                     "type": "Button",
                     "id": "0fb7434f-8eeb-40a5-9087-a70ad0bfcd36",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "EmoteWheel",
+                    "type": "Button",
+                    "id": "ffba0ae5-f795-4332-a99e-f79fbd56729a",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -719,6 +728,28 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Shop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d23c3b80-18e3-4cc5-bb78-79f7d337b9f9",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "EmoteWheel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a87a40d3-f48b-4f17-bfbe-6bfa099e7706",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "EmoteWheel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
