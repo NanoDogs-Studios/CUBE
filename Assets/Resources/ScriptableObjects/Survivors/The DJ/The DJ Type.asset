@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SurvivorType
   image: {fileID: 21300000, guid: 44a1a25acaf927b4993b63681f047481, type: 3}
   _Name: The DJ
-  Description: 
+  Description: Originally a Technician at Apothem Labs, The DJ has several abilites
+    using his technical knowledge against the Killers.
   ScriptName: TheDJ
   Cost: 450
   Difficulty: 2

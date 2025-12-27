@@ -1,0 +1,13 @@
+{
+    "asset": "75c40c611a4223e408accdb7ef430689",
+    "fileName": "019b5895-9139-7e43-87dc-d8e257504367.wav",
+    "prompt": "quiet, continous, felt more than heard, soft didigtal hum, 40-120 hz range, slightly modulated sine tone, subtle power on server-room vibe, ambient electrical infrastructure running.",
+    "negativePrompt": "",
+    "model": "63463307-7362-4155-a628-25deab99fd57",
+    "modelName": "Beatoven Sound Effect",
+    "customSeed": -1,
+    "w3CTraceId": "39725d6661b3d229918a7673b523316f",
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false
+}

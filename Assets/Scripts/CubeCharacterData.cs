@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using NanodogsToolkit.NanoVoice;
+using UnityEngine;
 
 /// <summary>
 /// this class is for the PHYSICAL character (the in-round character)
@@ -23,14 +24,14 @@ public class CubeCharacterData : ScriptableObject
 [System.Serializable]
 public class Voiceline
 {
-    public AudioClip clip;
+    public NanoVoiceLine voiceline;
     public VoicelineType type;
     public enum VoicelineType
     {
         Idle,
-        Request,
-        Generator,
         Hurt,
-        Ability
+        Chase,
+        Ability1,
+        Ability2,
     }
 }

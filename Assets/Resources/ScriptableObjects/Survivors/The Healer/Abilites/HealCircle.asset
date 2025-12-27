@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a06851e1d7631e24b87f61eed42edeb1, type: 3}
+  m_Name: HealCircle
+  m_EditorClassIdentifier: Assembly-CSharp::HealCircle
+  AbilityName: Heal Circle
+  AbilityIcon: {fileID: 21300000, guid: 5adfe8902815b4547b486d7982665d3d, type: 3}
+  AbilityIconGrayscale: {fileID: 21300000, guid: 94a71dec78234874a8a7023f128c6a5a, type: 3}
+  AbilityCooldown: 45
+  actionsAsset: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  AbilityActivation:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: db1eb785-b5c4-446a-b2d6-fbb55a7c08dc
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  AbilityLevel: 1

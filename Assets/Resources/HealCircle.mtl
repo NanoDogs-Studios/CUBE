@@ -1,0 +1,12 @@
+# Blender 5.0.0 MTL File: 'None'
+# www.blender.org
+
+newmtl Shader_Graphs_HealCircle
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 2.996078 0.692490 1.637443
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1

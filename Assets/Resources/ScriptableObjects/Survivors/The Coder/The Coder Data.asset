@@ -12,7 +12,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff5f8166a13e05641854f45a4dc3206c, type: 3}
   m_Name: The Coder Data
   m_EditorClassIdentifier: Assembly-CSharp::CubeCharacterData
-  voicelines: []
+  voicelines:
+  - voiceline: {fileID: 11400000, guid: 9902a13087446654d8cef1c8edae28a2, type: 2}
+    type: 0
+  - voiceline: {fileID: 11400000, guid: 60e7e6885f5fe724daf7e74b9a49689d, type: 2}
+    type: 0
+  - voiceline: {fileID: 11400000, guid: fb9826443e8905c4e8bcf66258ad1a33, type: 2}
+    type: 2
+  - voiceline: {fileID: 11400000, guid: a143d3d9425bb6049b4a2265fa6d7116, type: 2}
+    type: 3
+  - voiceline: {fileID: 11400000, guid: 2c410f3e07635344993b587ebf158bc4, type: 2}
+    type: 3
+  - voiceline: {fileID: 11400000, guid: a5cc583908bdb2d4fb7e37813d534b65, type: 2}
+    type: 4
+  - voiceline: {fileID: 11400000, guid: 143fddc95a43bcf4cb377b16240725b5, type: 2}
+    type: 4
+  - voiceline: {fileID: 11400000, guid: d0a6ac68456203e4483b2b1dae6d91aa, type: 2}
+    type: 3
+  - voiceline: {fileID: 11400000, guid: ba5d46b828dfea64aac8bdea1f48e40f, type: 2}
+    type: 1
+  - voiceline: {fileID: 11400000, guid: ba5d46b828dfea64aac8bdea1f48e40f, type: 2}
+    type: 1
+  - voiceline: {fileID: 11400000, guid: 955cabf7bb69cfe49904d8287f326f0e, type: 2}
+    type: 1
   layer1: {fileID: 0}
   layer2: {fileID: 0}
   layer3: {fileID: 0}

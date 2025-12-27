@@ -7,7 +7,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66b7001dd2b1e4c439857fca1bddb322, type: 3}
   m_Name: GlitchDash
@@ -16,5 +16,7 @@ MonoBehaviour:
   AbilityIcon: {fileID: 21300000, guid: 67613959a657d3a4682bd18ced781340, type: 3}
   AbilityIconGrayscale: {fileID: 21300000, guid: be295d531fe1873409d429fdf3b45747, type: 3}
   AbilityCooldown: 7
-  AbilityActivation: {fileID: 4573458975228539961, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  actionsAsset: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  AbilityActivation: {fileID: 0}
+  AbilityLevel: 1
   dashDistance: 50

@@ -101,7 +101,7 @@ public class ProxSong : MonoBehaviour
 
     private void Update()
     {
-        if (localPlayer == null || layers == null) return;
+        if (localPlayer == null || layers == null || basePlayer.GetPlayerType() == BasePlayer.PlayerType.Killer) return;
 
         Transform localPlayerHips = localPlayer.transform.Find("RIG").Find("Hip");
 
@@ -112,7 +112,7 @@ public class ProxSong : MonoBehaviour
             if (layer == null || layer.source == null) continue;
 
             float activationRadius = (maxLayer - layer.layer + 1) * distanceThreshold;
-            float targetVolume = (distance < activationRadius) ? 1f : 0f;
+            float targetVolume = (distance < activationRadius) ? .4f : 0f;
 
             layer.source.volume = Mathf.MoveTowards(
                 layer.source.volume,

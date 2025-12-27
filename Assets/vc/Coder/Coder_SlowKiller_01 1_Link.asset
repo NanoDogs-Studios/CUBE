@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Coder_SlowKiller_01 1_Link
+  m_EditorClassIdentifier: Assembly-CSharp-Editor:Nanodogs.Toolkit.NanoVoice:NanoVoiceLineClipLink
+  clip: {fileID: 8300000, guid: d8d01215648476b41bc715ae7aeb041e, type: 3}
+  metadata: {fileID: 11400000, guid: aabea4bc89ebf3a4ba187ae8646fd7af, type: 2}

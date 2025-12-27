@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SurvivorType
   image: {fileID: 21300000, guid: 34c53e607b71c3f42922022346d6493f, type: 3}
   _Name: The Healer
-  Description: 
+  Description: Originally a nurse, The Healer is a Support-Type survivor who aided
+    in the development of the AI Project at Apothem Labs.
   ScriptName: TheHealer
   Cost: 700
   Difficulty: 2
@@ -22,7 +23,7 @@ MonoBehaviour:
   Speed: 35
   Stamina: 110
   abilities:
-  - {fileID: 11400000, guid: b4c5f146f4db29c42a464e5b0aa19811, type: 2}
-  - {fileID: 11400000, guid: 78d230154fa7dda409ceb7ee026913c8, type: 2}
-  _PlayFabItemID: TheCoder
+  - {fileID: 0}
+  - {fileID: 0}
+  _PlayFabItemID: TheHealer
   character: {fileID: 11400000, guid: 765343be78d6b554f9f6bf3f93d24c83, type: 2}

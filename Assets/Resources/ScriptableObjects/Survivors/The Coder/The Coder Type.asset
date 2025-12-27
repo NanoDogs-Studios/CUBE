@@ -25,6 +25,6 @@ MonoBehaviour:
   Stamina: 110
   abilities:
   - {fileID: 11400000, guid: b4c5f146f4db29c42a464e5b0aa19811, type: 2}
-  - {fileID: 11400000, guid: 78d230154fa7dda409ceb7ee026913c8, type: 2}
+  - {fileID: 11400000, guid: 9ad97778189160943882064988f92bc4, type: 2}
   _PlayFabItemID: TheCoder
   character: {fileID: 11400000, guid: 765343be78d6b554f9f6bf3f93d24c83, type: 2}

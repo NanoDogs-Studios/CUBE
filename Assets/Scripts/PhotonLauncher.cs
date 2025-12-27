@@ -307,7 +307,7 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
             : survivorSpawns[survivorIndex];
 
         Debug.Log("Teleporting to: " + chosenSpawn.position);
-        TeleportPlayer(chosenSpawn.position, chosenSpawn.rotation);
+        TeleportPlayer(chosenSpawn.position, chosenSpawn.rotation, true);
     }
 
     private void HandleRoundStart()
@@ -331,36 +331,8 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
     {
         if (LocalPlayerInstance == null) return;
         Debug.Log("Intermission started — teleporting to intermission spawn.");
-        Vector3 spawnPos = roundManager != null ? roundManager.SyncedIntermissionSpawnPos : intermissionSpawn.position;
-        Quaternion? spawnRot = roundManager != null ? roundManager.SyncedIntermissionSpawnRot : intermissionSpawn.rotation;
+        Vector3 spawnPos = intermissionSpawn.position;
+        Quaternion? spawnRot = intermissionSpawn.rotation;
         TeleportPlayer(spawnPos, spawnRot, false);
-    }
-
-    // optional: keep SpawnWhenReady if you want to delay spawn/teleport until Photon is ready
-    private IEnumerator SpawnWhenReady()
-    {
-        yield return new WaitUntil(() => PhotonNetwork.IsConnectedAndReady);
-
-        if (LocalPlayerInstance == null)
-        {
-            Debug.LogError("Local Player is null, this bad :(");
-            yield break;
-        }
-
-        if (killerSpawns.Count == 0 || survivorSpawns.Count == 0)
-        {
-            Debug.LogError("No spawn points available.");
-            yield break;
-        }
-
-        int killerIndex = Random.Range(0, killerSpawns.Count);
-        int survivorIndex = Random.Range(0, survivorSpawns.Count);
-
-        Transform chosenSpawn = (Random.value < 0.5f)
-            ? killerSpawns[killerIndex]
-            : survivorSpawns[survivorIndex];
-
-        Debug.Log("Teleporting player to: " + chosenSpawn.position);
-        TeleportPlayer(chosenSpawn.position, chosenSpawn.rotation);
     }
 }

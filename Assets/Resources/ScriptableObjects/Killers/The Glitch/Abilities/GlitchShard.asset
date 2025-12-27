@@ -7,7 +7,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 471743f01cf733f4a8e7205588a99c99, type: 3}
   m_Name: GlitchShard
@@ -16,7 +16,9 @@ MonoBehaviour:
   AbilityIcon: {fileID: 21300000, guid: 1f206dc78133e47498fc6340e1f189df, type: 3}
   AbilityIconGrayscale: {fileID: 21300000, guid: 6ad592b5479e38c4e9c46f57d385b69c, type: 3}
   AbilityCooldown: 10
-  AbilityActivation: {fileID: 8261794699482648619, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  actionsAsset: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  AbilityActivation: {fileID: 0}
+  AbilityLevel: 2
   cubeMesh: {fileID: -5495902117074765545, guid: 8941ea01eaf338b4984b6ea29d5b5af2, type: 3}
   force: 20
   damage: 15

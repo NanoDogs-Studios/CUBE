@@ -132,6 +132,21 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
         {
             bone.material = mat;
         }
+
+        foreach (Accessory accessory in survivorType.character.accessories)
+        {
+            Transform accTransform = transform.Find(accessory.boneName);
+            if (accTransform != null)
+            {
+                GameObject accInstance = Instantiate(accessory.prefab, accTransform);
+                accInstance.transform.localPosition = Vector3.zero;
+                accInstance.transform.localRotation = Quaternion.identity;
+            }
+            else
+            {
+                Debug.LogWarning($"[PlayerCustomizer] Accessory bone '{accessory.boneName}' not found on player.");
+            }
+        }
     }
 
     private void ApplyKillerCustomisation(string id)

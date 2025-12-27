@@ -183,7 +183,7 @@ public class PlayerAbilityManager : MonoBehaviour
             TMP_Text cooldownText = abilityGO.transform.Find("Cooldown")?.GetComponent<TMP_Text>();
             if (cooldownText != null) cooldownText.text = "Ready";
 
-            if (ability.AbilityActivation != null)
+            if (ability.AbilityActivation != null || ability.AbilityActivation.action != null)
                 abilityInputs.Add(ability.AbilityActivation.action);
             else
                 abilityInputs.Add(default);

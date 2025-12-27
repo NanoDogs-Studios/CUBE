@@ -10,7 +10,7 @@
 public class Accessory
 {
     public GameObject prefab;
-    public Transform parent;
+    public string boneName;
     public Vector3 localPosition;
     public Quaternion localRotation;
 }
