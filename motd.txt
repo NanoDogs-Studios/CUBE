@@ -1,3 +1,3 @@
-MOTD: This is motd!!! hellooo
-- Update log
--- hello
+MOTD: Welcome to CUBE Beta; this version is not for public use at the moment. I hope you enjoy the game!
+- Update 0.4.2
+-- Added: Play Menu, Private Games, New Look for Everything | Fixed: Teleporting issues (FINALLY), Texture Issues on cubes.
