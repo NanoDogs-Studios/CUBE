@@ -5641,6 +5641,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   rigRoot: {fileID: 6937505995580553567}
+  teleportBodies: []
   groundMask:
     serializedVersion: 2
     m_Bits: 1

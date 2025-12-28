@@ -51,24 +51,12 @@ public class RoleReveal : MonoBehaviour
             secondtext.text = "Survive the <color=red>KILLER";
         }
 
-        StartCoroutine(Reveal());
+        fadeGroup(canvasGroup, true, 6f);
+        fadeGroup(canvasGroup1, true, 4f);
     }
 
-    IEnumerator Reveal()
+    IEnumerator fadeGroup(CanvasGroup group, bool fadeIn, float duration)
     {
-        fadeGroup(canvasGroup, true);
-        yield return new WaitForSeconds(2f);
-        fadeGroup(canvasGroup1, true);
-
-        yield return new WaitForSeconds(6f);
-        StartCoroutine(fadeGroup(canvasGroup, false));
-        yield return new WaitForSeconds(1f);
-        StartCoroutine(fadeGroup(canvasGroup1, false));
-    }
-
-    IEnumerator fadeGroup(CanvasGroup group, bool fadeIn)
-    {
-        float duration = 2f;
         float elapsed = 0f;
         if (fadeIn)
         {

@@ -43,11 +43,12 @@ public class MenuCubeSpawner : MonoBehaviour
         cube.GetComponent<MeshFilter>().sharedMesh = cubeMesh;
 
         // apply material
-        Material material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        Material material = new Material(Shader.Find("Shader Graphs/PolishedProto"));
         material.color = new Color(Random.value, Random.value, Random.value);
-        material.SetTexture("_BaseMap", baseMap);
-        material.SetTextureScale("_BaseMap", new Vector2(10, 10));
-        material.SetFloat("_Smoothness", 0f);
+        material.SetTexture("_Base", baseMap);
+        material.SetTextureScale("_Base", new Vector2(4, 4));
+        material.SetTexture("_EmissionMap", baseMap);
+        material.SetTextureScale("_EmissionMap", new Vector2(4, 4));
         cube.GetComponent<Renderer>().material = material;
 
         // collider + rigidbody

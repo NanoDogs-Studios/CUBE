@@ -28,9 +28,13 @@ public class RagdollNetwork : MonoBehaviour, IPunObservable
     public float positionLerp = 20f;
     public float rotationLerp = 20f;
 
+    private float freezeUntilTime = 0f;
+
     void Awake()
     {
         pv = GetComponent<PhotonView>();
+        if (keyBones == null) keyBones = new List<Transform>();
+
         keyBonePosTarget = new Vector3[keyBones.Count];
         keyBoneRotTarget = new Quaternion[keyBones.Count];
     }
@@ -59,14 +63,15 @@ public class RagdollNetwork : MonoBehaviour, IPunObservable
     {
         if (!pv.IsMine)
         {
-            // Smoothly interpolate hip
+            // During teleports, we want to hold the snap pose (no smoothing from old targets)
+            if (Time.time < freezeUntilTime) return;
+
             if (hip != null)
             {
                 hip.position = Vector3.Lerp(hip.position, hipPosTarget, Time.deltaTime * positionLerp);
                 hip.rotation = Quaternion.Slerp(hip.rotation, hipRotTarget, Time.deltaTime * rotationLerp);
             }
 
-            // Smooth key bones (local space)
             for (int i = 0; i < keyBones.Count; i++)
             {
                 var t = keyBones[i];
@@ -74,10 +79,6 @@ public class RagdollNetwork : MonoBehaviour, IPunObservable
                 t.localPosition = Vector3.Lerp(t.localPosition, keyBonePosTarget[i], Time.deltaTime * positionLerp);
                 t.localRotation = Quaternion.Slerp(t.localRotation, keyBoneRotTarget[i], Time.deltaTime * rotationLerp);
             }
-        }
-        else
-        {
-            // Owner could optionally send less often or send impulses via RPCs for big impacts.
         }
     }
 
@@ -174,5 +175,45 @@ public class RagdollNetwork : MonoBehaviour, IPunObservable
     {
         if (idx < 0 || idx >= keyBones.Count) return null;
         return keyBones[idx];
+    }
+
+
+    public void ForceSnapToCurrentPose(float freezeSeconds = 0.10f)
+    {
+        if (hip != null)
+        {
+            hipPosTarget = hip.position;
+            hipRotTarget = hip.rotation;
+        }
+
+        for (int i = 0; i < keyBones.Count; i++)
+        {
+            var t = keyBones[i];
+            if (t == null) continue;
+
+            keyBonePosTarget[i] = t.localPosition;
+            keyBoneRotTarget[i] = t.localRotation;
+        }
+
+        // Remotes: also hard-apply immediately so there's no lerp from old pose
+        if (!pv.IsMine)
+        {
+            if (hip != null)
+            {
+                hip.position = hipPosTarget;
+                hip.rotation = hipRotTarget;
+            }
+
+            for (int i = 0; i < keyBones.Count; i++)
+            {
+                var t = keyBones[i];
+                if (t == null) continue;
+
+                t.localPosition = keyBonePosTarget[i];
+                t.localRotation = keyBoneRotTarget[i];
+            }
+        }
+
+        freezeUntilTime = Time.time + freezeSeconds;
     }
 }

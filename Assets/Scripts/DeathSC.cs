@@ -78,7 +78,7 @@ public class DeathSC : MonoBehaviour
         Quaternion? spawnRot = photonLauncher.roundManager != null
             ? photonLauncher.roundManager.SyncedIntermissionSpawnRot
             : photonLauncher.intermissionSpawn.rotation;
-        photonLauncher.TeleportPlayer(spawnPos, spawnRot, false);
+        photonLauncher.TeleportPlayer(spawnPos, spawnRot);
 
         // allow death to happen again
         died = false;
