@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KillerType
   image: {fileID: 21300000, guid: 3bb1ad51a799c13499b94f40bfebe828, type: 3}
   _Name: The Glitch
-  Description: 
+  Description: The first of the two killers manifested in the CUBE simulation, The
+    Glitch is a glitchy humanoid AI that is based on mobility and ranged attacks.
   ScriptName: TheGlitch
   Cost: 150
   Difficulty: 3

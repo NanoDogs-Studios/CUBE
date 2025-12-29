@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "GlitchShard", menuName = "ScriptableObjects/Killer Abilities/GlitchShard", order = 1)]
@@ -10,12 +11,14 @@ public class GlitchShard : Ability
     public override void ActivateAbility(BasePlayer player)
     {
         base.ActivateAbility(player);
-        ThrowShard(player);
+        PhotonView pv = player.GetComponent<PhotonView>();
+        pv.RPC("ThrowShard", RpcTarget.All, player);
     }
 
-    void ThrowShard(BasePlayer playerObj)
+    [PunRPC]
+    public void ThrowShard(BasePlayer playerObj)
     {
-        GameObject shard = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject shard = PhotonNetwork.Instantiate("GlitchShard", Vector3.zero, Quaternion.identity);
         shard.GetComponent<MeshFilter>().mesh = cubeMesh;
         shard.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Glitch");
 

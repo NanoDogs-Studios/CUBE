@@ -101,35 +101,53 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
     void Start()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
-        PhotonNetwork.ConnectUsingSettings();
+        if (PhotonNetwork.InRoom)
+        {
+            EnsureSpawned();
+        }
     }
+
+    private void EnsureSpawned()
+    {
+        if (LocalPlayerInstance != null) return;
+
+        // Pick a safe spawn even if roundManager/intermissionSpawn isn't ready yet
+        Vector3 pos = transform.position;
+        Quaternion rot = Quaternion.identity;
+
+        if (roundManager != null)
+        {
+            pos = roundManager.SyncedIntermissionSpawnPos;
+            rot = roundManager.SyncedIntermissionSpawnRot;
+        }
+        else if (intermissionSpawn != null)
+        {
+            pos = intermissionSpawn.position;
+            rot = intermissionSpawn.rotation;
+        }
+
+        LocalPlayerInstance = PhotonNetwork.Instantiate(playerPrefab.name, pos, rot);
+        Debug.Log("Spawned local player.");
+
+        var customizer = LocalPlayerInstance.GetComponent<PlayerCustomizer>();
+        if (customizer != null)
+        {
+            customizer.ChangeColorCalled(
+                Resources.Load<Material>("PlayerMat").GetColor("_MainColor").ToHexString()
+            );
+        }
+    }
+
 
     public override void OnConnectedToMaster()
     {
         Debug.Log("Connected to Master");
-        PhotonNetwork.JoinRandomOrCreateRoom();
     }
 
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined a room...");
-
-        if (LocalPlayerInstance == null)
-        {
-            LocalPlayerInstance = PhotonNetwork.Instantiate(
-                playerPrefab.name,
-                roundManager != null ? roundManager.SyncedIntermissionSpawnPos : intermissionSpawn.position,
-                roundManager != null ? roundManager.SyncedIntermissionSpawnRot : Quaternion.identity
-            );
-            Debug.Log("just called it");
-            LocalPlayerInstance.GetComponent<PlayerCustomizer>().ChangeColorCalled(Resources.Load<Material>("PlayerMat").GetColor("_MainColor").ToHexString());
-        }
-        else
-        {
-            Vector3 spawnPos = roundManager != null ? roundManager.SyncedIntermissionSpawnPos : intermissionSpawn.position;
-            Quaternion? spawnRot = roundManager != null ? roundManager.SyncedIntermissionSpawnRot : intermissionSpawn.rotation;
-            TeleportPlayer(spawnPos, spawnRot);
-        }
+        EnsureSpawned();
     }
 
     public override void OnLeftRoom()

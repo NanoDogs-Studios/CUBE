@@ -548,7 +548,7 @@ MonoBehaviour:
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
-  m_Antialiasing: 0
+  m_Antialiasing: 1
   m_AntialiasingQuality: 2
   m_StopNaN: 1
   m_Dithering: 1
@@ -6485,11 +6485,16 @@ MonoBehaviour:
   leftFoot: {fileID: 5202197852798465153}
   rightFoot: {fileID: 5948008770960881318}
   steps:
-  - {fileID: 8300000, guid: 3b325661b7aa35949b2ba27befb336a0, type: 3}
-  - {fileID: 8300000, guid: 14de3f8772e91cd40a5ee2ec97580f99, type: 3}
-  - {fileID: 8300000, guid: 44beb200b1d62de42a82f77da7a3562c, type: 3}
-  - {fileID: 8300000, guid: 2331fde4e54e78d4e921aa0269df91aa, type: 3}
-  sfxMixer: {fileID: 0}
+  - {fileID: 8300000, guid: 463e9946b7e97b5409cc5ea942b6053d, type: 3}
+  - {fileID: 8300000, guid: 3c225fefc350b4d4fb4588c39526f2aa, type: 3}
+  - {fileID: 8300000, guid: 76a5c4ce4f603f64c93c0383caf5c7d6, type: 3}
+  - {fileID: 8300000, guid: d8744a4f5f61a7546a3745e9fcc1156f, type: 3}
+  - {fileID: 8300000, guid: 04e6d002a6760b14bb75e0aafe3be732, type: 3}
+  - {fileID: 8300000, guid: d9f1ef311b33f8340a595339804d10d0, type: 3}
+  - {fileID: 8300000, guid: 65c8c0be74689a743bb5a86eb98f8815, type: 3}
+  - {fileID: 8300000, guid: b48e2260994aabe4cb01922966ebdc85, type: 3}
+  - {fileID: 8300000, guid: 6fd82c2259f0c1b4a895face153b5656, type: 3}
+  sfxMixer: {fileID: 663386939205293736, guid: f8b64f148cac40d4d97dd8f61d71930f, type: 2}
 --- !u!114 &6251008360216944659
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -19,4 +19,6 @@ MonoBehaviour:
   actionsAsset: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   AbilityActivation: {fileID: 0}
   AbilityLevel: 1
-  dashDistance: 50
+  dashDistance: 40
+  dashSound: {fileID: 8300000, guid: c009bc702fb3dda4e87ac132a404abc7, type: 3}
+  DashEffectsPrefab: {fileID: 0}

@@ -34,6 +34,13 @@ public class VoicelineHandler : MonoBehaviourPunCallbacks
             this.enabled = false;
             return;
         }
+        // 
+        else if (player.GetPlayerType() == BasePlayer.PlayerType.Survivor && data.voicelines.Length < 0)
+        {
+            Debug.LogWarning("VoicelineHandler attached to a Survivor that does not have voicelines.");
+            this.enabled = false;
+            return;
+        }
     }
 
     private void Update()

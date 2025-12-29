@@ -23,7 +23,7 @@ MonoBehaviour:
   Speed: 35
   Stamina: 110
   abilities:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 7fb069e58418a85409329e12ec794220, type: 2}
   - {fileID: 0}
   _PlayFabItemID: TheHealer
   character: {fileID: 11400000, guid: 765343be78d6b554f9f6bf3f93d24c83, type: 2}

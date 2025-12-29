@@ -26,9 +26,33 @@ public class RoundManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        Debug.Log($"PlayerAbilityManager instances in scene: {FindObjectsByType<PlayerAbilityManager>(FindObjectsSortMode.InstanceID).Length}");
-
         RefreshIntermissionSpawnFromPoint();
+
+        // If we loaded this scene AFTER joining the room, OnJoinedRoom won't fire.
+        if (PhotonNetwork.InRoom)
+        {
+            BootstrapIfNeeded();
+        }
+    }
+
+    private void BootstrapIfNeeded()
+    {
+        // Only the master should start the initial cycle.
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        // If already running, don't restart.
+        if (roundActive || intermissionActive) return;
+
+        double endTime = PhotonNetwork.Time + intermissionTime;
+
+        // IMPORTANT: buffer it so everyone (and late scene loads) get it
+        photonView.RPC(
+            "StartIntermission",
+            RpcTarget.AllBuffered,
+            SyncedIntermissionSpawnPos,
+            SyncedIntermissionSpawnRot,
+            endTime
+        );
     }
 
     public override void OnJoinedRoom()
@@ -36,7 +60,7 @@ public class RoundManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             double endTime = PhotonNetwork.Time + intermissionTime;
-            photonView.RPC("StartIntermission", RpcTarget.All, SyncedIntermissionSpawnPos, SyncedIntermissionSpawnRot, endTime);
+            photonView.RPC("StartIntermission", RpcTarget.AllBuffered, SyncedIntermissionSpawnPos, SyncedIntermissionSpawnRot, endTime);
         }
     }
 
@@ -163,7 +187,7 @@ public class RoundManager : MonoBehaviourPunCallbacks
                 else if (intermissionActive)
                 {
                     double nextEnd = PhotonNetwork.Time + roundTime;
-                    photonView.RPC("StartRound", RpcTarget.All, nextEnd);
+                    photonView.RPC("StartRound", RpcTarget.AllBuffered, nextEnd);
                 }
             }
 
@@ -200,7 +224,7 @@ public class RoundManager : MonoBehaviourPunCallbacks
 
         RefreshIntermissionSpawnFromPoint();
         double endTime = PhotonNetwork.Time + intermissionTime;
-        photonView.RPC("StartIntermission", RpcTarget.All, SyncedIntermissionSpawnPos, SyncedIntermissionSpawnRot, endTime);
+        photonView.RPC("StartIntermission", RpcTarget.AllBuffered, SyncedIntermissionSpawnPos, SyncedIntermissionSpawnRot, endTime);
     }
 
     public int GetCurrentTime()

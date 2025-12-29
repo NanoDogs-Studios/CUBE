@@ -1,4 +1,4 @@
-using Photon.Pun;
+ using Photon.Pun;
 using System;
 using UnityEngine;
 using static BasePlayer;
@@ -15,6 +15,15 @@ public class ServerManager : MonoBehaviourPunCallbacks
     {
         roundManager = GetComponent<RoundManager>();
         roundManager.OnRoundStart += RoundStartedRPC;
+        roundManager.OnIntermissionStart += IntermissionStart;
+    }
+
+    private void IntermissionStart()
+    {
+        foreach (BasePlayer player in allBasePlayers)
+        {
+            player.GetComponentInChildren<InputArmController>().enabled = false;
+        }
     }
 
     private void OnDestroy()

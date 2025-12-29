@@ -7,10 +7,9 @@ public class RoleReveal : MonoBehaviour
 {
     public RoundManager roundManager;
 
-    public TMP_Text text;
-    public TMP_Text secondtext;
-    public CanvasGroup canvasGroup;
-    public CanvasGroup canvasGroup1;
+    GameObject text1;
+    GameObject text2;
+
 
     private void Start()
     {
@@ -42,37 +41,20 @@ public class RoleReveal : MonoBehaviour
         BasePlayer.PlayerType type = localPlayer.GetPlayerType();
         if (type == BasePlayer.PlayerType.Killer)
         {
-            text.text = "You are the <color=red>KILLER";
-            secondtext.text = "Eliminate all <color=green>SURVIVORS";
+            text1 = CUBEStatusText.FadeInAndCreate("You are the <color=red>KILLER</color>! Hunt down the <color=green>SURVIVORS</color>!", 2);
         }
         else if (type == BasePlayer.PlayerType.Survivor)
         {
-            text.text = "You are a <color=green>SURVIVOR";
-            secondtext.text = "Survive the <color=red>KILLER";
+            text2 = CUBEStatusText.FadeInAndCreate("You are a <color=green>SURVIVOR</color>! Work together to escape the <color=red>KILLER</color>!", 2);
         }
-
-        fadeGroup(canvasGroup, true, 6f);
-        fadeGroup(canvasGroup1, true, 4f);
+        StartCoroutine(Fade());
     }
 
-    IEnumerator fadeGroup(CanvasGroup group, bool fadeIn, float duration)
+    IEnumerator Fade()
     {
-        float elapsed = 0f;
-        if (fadeIn)
-        {
-            group.alpha = 0f;
-        }
-        else
-        {
-            group.alpha = 1f;
-        }
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float alpha = fadeIn ? (elapsed / duration) : (1 - (elapsed / duration));
-            group.alpha = alpha;
-            yield return null;
-        }
-        canvasGroup.alpha = fadeIn ? 1f : 0f;
+        yield return new WaitForSeconds(6);
+        CUBEStatusText.FadeOutAndDestroy(text1, 2);
+        yield return new WaitForSeconds(2f);
+        CUBEStatusText.FadeOutAndDestroy(text2, 2);
     }
 }

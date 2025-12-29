@@ -1,5 +1,4 @@
 using Photon.Pun;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -27,9 +26,11 @@ public class PlayerAbilityManager : MonoBehaviour
 
     private bool subscribed = false;
 
+    // NEW: intermission gating (no disabling InputActions!)
+    private bool abilitiesEnabled = true;
+
     private void Awake()
     {
-        // Try to cache player early (may be null until Camera.main exists)
         var camRefs = Camera.main?.GetComponent<PlayerCameraReferences>();
         PhotonView probablyPlayer = camRefs?.GetPlayer().GetPhotonView();
         if (probablyPlayer != null && probablyPlayer.IsMine)
@@ -46,8 +47,9 @@ public class PlayerAbilityManager : MonoBehaviour
         if (roundManager != null && !subscribed)
         {
             roundManager.OnRoundStart += OnRoundStart;
+            roundManager.OnIntermissionStart += OnIntermissionStart;
             subscribed = true;
-            Debug.Log("PlayerAbilityManager subscribed to RoundManager.OnRoundStart");
+            Debug.Log("PlayerAbilityManager subscribed to RoundManager events");
         }
         else if (roundManager == null)
         {
@@ -57,9 +59,23 @@ public class PlayerAbilityManager : MonoBehaviour
         // If the round is already active, set up abilities immediately
         if (roundManager != null && roundManager.roundActive)
         {
+            abilitiesEnabled = true;
             Debug.Log("PlayerAbilityManager detected roundActive on OnEnable -> calling OnRoundStart()");
             OnRoundStart();
         }
+        else
+        {
+            // Not active yet -> assume intermission/lobby state
+            abilitiesEnabled = false;
+            SetAllCooldownTexts("Disabled");
+        }
+    }
+
+    private void OnIntermissionStart()
+    {
+        Debug.Log("Intermission Started - disabling ability usage");
+        abilitiesEnabled = false;
+        SetAllCooldownTexts("Disabled");
     }
 
     private void OnDisable()
@@ -67,14 +83,14 @@ public class PlayerAbilityManager : MonoBehaviour
         if (roundManager != null && subscribed)
         {
             roundManager.OnRoundStart -= OnRoundStart;
+            roundManager.OnIntermissionStart -= OnIntermissionStart; // IMPORTANT: was missing
             subscribed = false;
-            Debug.Log("PlayerAbilityManager unsubscribed from RoundManager.OnRoundStart");
+            Debug.Log("PlayerAbilityManager unsubscribed from RoundManager events");
         }
     }
 
     private void Start()
     {
-        // Ensure player is cached (again) once Camera.main is ready
         if (player == null)
         {
             var camRefs = Camera.main?.GetComponent<PlayerCameraReferences>();
@@ -89,6 +105,7 @@ public class PlayerAbilityManager : MonoBehaviour
     private void OnRoundStart()
     {
         Debug.Log("Round Started - Setting up abilities");
+        abilitiesEnabled = true;
 
         if (player == null)
         {
@@ -96,22 +113,22 @@ public class PlayerAbilityManager : MonoBehaviour
             return;
         }
 
-        // Start a coroutine to build UI immediately and again after a short delay
+        // If abilities were already built, make sure actions are enabled now.
+        EnsureAbilityActionsEnabled();
+
         StartCoroutine(BuildAbilitiesWithDelay());
     }
 
+
     private IEnumerator BuildAbilitiesWithDelay()
     {
-        // First immediate attempt
         BuildAbilitiesUI();
-        // Wait a bit and try again (lets PlayerType and equipped data settle)
         yield return new WaitForSeconds(1.5f);
         BuildAbilitiesUI();
     }
 
     private void BuildAbilitiesUI()
     {
-        // Reset
         survivor = null;
         killer = null;
         currentMoveset = null;
@@ -119,7 +136,6 @@ public class PlayerAbilityManager : MonoBehaviour
         var type = player.GetPlayerType();
         Debug.Log($"[BuildAbilitiesUI] Player type: {type}");
 
-        // Only call one accessor based on type
         if (type == BasePlayer.PlayerType.Survivor)
         {
             survivor = player.GetEquippedSurvivor();
@@ -138,14 +154,12 @@ public class PlayerAbilityManager : MonoBehaviour
             return;
         }
 
-        // Bail if no abilities found
         if (currentMoveset == null || currentMoveset.Length == 0)
         {
             Debug.LogWarning($"No abilities found for {type}");
             return;
         }
 
-        // Clear and rebuild the UI
         abilityInputs.Clear();
         cooldownTimers.Clear();
         cooldownTexts.Clear();
@@ -158,7 +172,7 @@ public class PlayerAbilityManager : MonoBehaviour
         }
 
         foreach (Transform child in abilitiesParent)
-            Destroy(child.gameObject); // Clear old abilities
+            Destroy(child.gameObject);
 
         foreach (Ability ability in currentMoveset)
         {
@@ -173,32 +187,63 @@ public class PlayerAbilityManager : MonoBehaviour
             if (slider != null)
             {
                 slider.ability = ability;
-                slider.SetSliderValue(100f); // start full
+                slider.SetSliderValue(100f);
                 abilitySliders.Add(slider);
+            }
+            else
+            {
+                abilitySliders.Add(null);
             }
 
             var nameText = abilityGO.transform.Find("Name")?.GetComponent<TMP_Text>();
             if (nameText != null) nameText.text = ability.AbilityName;
 
             TMP_Text cooldownText = abilityGO.transform.Find("Cooldown")?.GetComponent<TMP_Text>();
-            if (cooldownText != null) cooldownText.text = "Ready";
+            if (cooldownText != null) cooldownText.text = abilitiesEnabled ? "Ready" : "Disabled";
 
-            if (ability.AbilityActivation != null || ability.AbilityActivation.action != null)
+            // NOTE: This MUST be && (your old code had || which can NRE)
+            if (ability.AbilityActivation != null && ability.AbilityActivation.action != null)
                 abilityInputs.Add(ability.AbilityActivation.action);
             else
-                abilityInputs.Add(default);
+                abilityInputs.Add(null);
 
-            cooldownTimers.Add(ability.AbilityCooldown); // start at max cooldown (ready)
+            cooldownTimers.Add(ability.AbilityCooldown);
             cooldownTexts.Add(cooldownText);
         }
-
         Debug.Log($"Built ability UI for {currentMoveset.Length} abilities for {type}");
+
+        EnsureAbilityActionsEnabled();
+    }
+
+    private void EnsureAbilityActionsEnabled()
+    {
+        // Only do this for the local player
+        // (player may be null early; just bail)
+        if (player == null) return;
+
+        for (int i = 0; i < abilityInputs.Count; i++)
+        {
+            var act = abilityInputs[i];
+            if (act == null) continue;
+
+            // Make sure it's enabled so WasPressedThisFrame can work
+            if (!act.enabled)
+                act.Enable();
+        }
     }
 
 
+    private void SetAllCooldownTexts(string text)
+    {
+        for (int i = 0; i < cooldownTexts.Count; i++)
+        {
+            if (cooldownTexts[i] != null)
+                cooldownTexts[i].text = text;
+        }
+    }
+
     private void Update()
     {
-        // Cache player if lost (avoid repeated heavy finds)
         if (player == null)
         {
             var camRefs = Camera.main?.GetComponent<PlayerCameraReferences>();
@@ -213,7 +258,6 @@ public class PlayerAbilityManager : MonoBehaviour
         if (currentMoveset == null)
             return;
 
-        // safety: skip if UI lists not built
         int safeCount = Mathf.Min(
             currentMoveset.Length,
             abilityInputs.Count,
@@ -224,8 +268,9 @@ public class PlayerAbilityManager : MonoBehaviour
         for (int i = 0; i < safeCount; i++)
         {
             Ability ability = currentMoveset[i];
+            if (ability == null) continue;
 
-            // Cooldown timer update
+            // Cooldown timer update (still updates even in intermission)
             if (cooldownTimers[i] < ability.AbilityCooldown)
             {
                 cooldownTimers[i] += Time.deltaTime;
@@ -233,32 +278,49 @@ public class PlayerAbilityManager : MonoBehaviour
                     cooldownTimers[i] = ability.AbilityCooldown;
             }
 
-            // Update cooldown text
             float remaining = ability.AbilityCooldown - cooldownTimers[i];
-            if (remaining > 0)
-                cooldownTexts[i].text = remaining.ToString("F1");
-            else
-                cooldownTexts[i].text = "Ready";
 
-            // Update slider (percentage of cooldown completed)
-            float fillPercent = (cooldownTimers[i] / ability.AbilityCooldown) * 100f;
-            abilitySliders[i].SetSliderValue(fillPercent);
+            // If intermission: show Disabled and skip activation
+            if (!abilitiesEnabled)
+            {
+                if (cooldownTexts[i] != null) cooldownTexts[i].text = "Disabled";
+                if (abilitySliders[i] != null) abilitySliders[i].SetSliderValue(0f);
+                continue;
+            }
 
-            // Input check
-            if (abilityInputs[i] != null && abilityInputs[i].WasPressedThisFrame() && cooldownTimers[i] >= ability.AbilityCooldown)
+            // Normal UI
+            if (cooldownTexts[i] != null)
+                cooldownTexts[i].text = remaining > 0 ? remaining.ToString("F1") : "Ready";
+
+            if (abilitySliders[i] != null)
+            {
+                float fillPercent = (cooldownTimers[i] / ability.AbilityCooldown) * 100f;
+                abilitySliders[i].SetSliderValue(fillPercent);
+            }
+
+            var act = abilityInputs[i];
+
+            // Works for Button actions (keyboard, mouse, gamepad buttons)
+            bool pressed = act != null && act.triggered;
+
+            // Fallback for Value actions that return float (common for buttons too)
+            if (!pressed && act != null && act.ReadValue<float>() > 0.5f)
+                pressed = true;
+
+            if (pressed && cooldownTimers[i] >= ability.AbilityCooldown)
             {
                 ability.ActivateAbility(player);
-                cooldownTimers[i] = 0f; // reset cooldown
+                cooldownTimers[i] = 0f;
             }
         }
     }
 
     private void OnDestroy()
     {
-        // last safety unsubscribe
         if (roundManager != null && subscribed)
         {
             roundManager.OnRoundStart -= OnRoundStart;
+            roundManager.OnIntermissionStart -= OnIntermissionStart;
             subscribed = false;
         }
     }
