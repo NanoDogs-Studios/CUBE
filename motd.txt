@@ -1,6 +1,26 @@
+// KEY:
+// "-" Update Title
+// "--" Update Subtitle
+// "-+" Update Added
+// "-=" Update Changed/Fixed
+// "-|" Update Removed
+// "-#" Update Info
+// "//" Ignored Lines
+// "MOTD:" Message Of The Day
+// "MOTD_IMG=" Image displayed for MOTD
+// "UPD_IMG=" Image displayed for Update
+
 MOTD: Welcome to CUBE Beta; this version is not for public use at the moment. I hope you enjoy the game!
 - Update 0.4.2
--- Added: Play Menu, Private Games, New Look for Everything | Fixed: Teleporting issues (FINALLY), Texture Issues on cubes.
+-- 0.4.2 Introduces a lot of polish and new features that are very much needed.
+-+ Play Menu,
+-+ Private Games,
+-+ New Look for Everything
+-= Teleporting issues (FINALLY),
+-= Texture Issues on cubes
+-# Join our discord to give feedback & ideas!
+url=https://discord.gg/ZHRWv8BCqV|Discord
+-# Thanks!
 
 MOTD_IMG=https://raw.githubusercontent.com/NanoDogs-Studios/CUBE/refs/heads/main/Assets/Textures/characters/Healer.png
 UPD_IMG=https://raw.githubusercontent.com/NanoDogs-Studios/CUBE/refs/heads/main/Assets/Textures/characters/DJ.png
