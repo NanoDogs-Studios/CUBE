@@ -6,6 +6,8 @@ MOTD: Welcome to CUBE Beta; this version is not for public use at the moment. I 
 -+ New Look for Everything
 -= Teleporting issues (FINALLY),
 -= Texture Issues on cubes
+-# Join our discord to give feedback & ideas!
+url=https://discord.gg/ZHRWv8BCqV|Discord
 
 MOTD_IMG=https://raw.githubusercontent.com/NanoDogs-Studios/CUBE/refs/heads/main/Assets/Textures/characters/Healer.png
 UPD_IMG=https://raw.githubusercontent.com/NanoDogs-Studios/CUBE/refs/heads/main/Assets/Textures/characters/DJ.png
