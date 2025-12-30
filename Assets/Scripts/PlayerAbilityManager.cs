@@ -180,10 +180,10 @@ public class PlayerAbilityManager : MonoBehaviour
 
             GameObject abilityGO = Instantiate(AbilityUITemplate, abilitiesParent);
 
-            var icon = abilityGO.transform.Find("Icon")?.GetComponent<Image>();
-            if (icon != null) icon.sprite = ability.AbilityIcon;
+            var normalIcon = abilityGO.transform.Find("Icon")?.GetComponent<Image>();
+            var grayIcon = abilityGO.transform.Find("IconGrayscale")?.GetComponent<Image>();
 
-            AbiltySlider slider = abilityGO.transform.Find("Icon")?.GetComponent<AbiltySlider>();
+            AbiltySlider slider = normalIcon.GetComponent<AbiltySlider>();
             if (slider != null)
             {
                 slider.ability = ability;
@@ -194,6 +194,14 @@ public class PlayerAbilityManager : MonoBehaviour
             {
                 abilitySliders.Add(null);
             }
+
+            if (normalIcon != null) normalIcon.sprite = ability.AbilityIcon;
+            if (grayIcon != null)
+            {
+                grayIcon.sprite = ability.AbilityIconGrayscale;
+                grayIcon.fillAmount = 1f;
+            }
+
 
             var nameText = abilityGO.transform.Find("Name")?.GetComponent<TMP_Text>();
             if (nameText != null) nameText.text = ability.AbilityName;

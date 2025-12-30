@@ -42,10 +42,12 @@ public class RoleReveal : MonoBehaviour
         if (type == BasePlayer.PlayerType.Killer)
         {
             text1 = CUBEStatusText.FadeInAndCreate("You are the <color=red>KILLER</color>! Hunt down the <color=green>SURVIVORS</color>!", 2);
+            Debug.Log("Created text");
         }
         else if (type == BasePlayer.PlayerType.Survivor)
         {
             text2 = CUBEStatusText.FadeInAndCreate("You are a <color=green>SURVIVOR</color>! Work together to escape the <color=red>KILLER</color>!", 2);
+            Debug.Log("Created text");
         }
         StartCoroutine(Fade());
     }

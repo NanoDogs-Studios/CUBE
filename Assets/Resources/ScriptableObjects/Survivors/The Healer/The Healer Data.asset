@@ -17,5 +17,9 @@ MonoBehaviour:
   layer2: {fileID: 0}
   layer3: {fileID: 0}
   layer4: {fileID: 0}
-  accessories: []
+  accessories:
+  - prefab: {fileID: 8877103439607568017, guid: 2cae57162cc5f8b42b4a1f498af536fb, type: 3}
+    boneName: Elbow_Right
+    localPosition: {x: 0.437, y: -0.018, z: 0}
+    localRotation: {x: 0, y: 0, z: 0, w: 0}
   bodyMaterial: {fileID: 2100000, guid: 696485add95cbfd408759e0a213b3404, type: 2}

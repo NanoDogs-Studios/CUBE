@@ -1,4 +1,6 @@
 using HSVPicker;
+using Photon.Pun;
+using Photon.Realtime;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -9,7 +11,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayfabManager : MonoBehaviour
+public class PlayfabManager : MonoBehaviourPunCallbacks
 {
     public GameObject nameWindow;
     public TMP_InputField nameField;
@@ -115,14 +117,53 @@ public class PlayfabManager : MonoBehaviour
         else
         {
             InfoText(Application.version + " | " + "Not Set!" + " | " + "Logged In");
-        }
-
-        if (displayName == null)
-        {
             nameWindow.SetActive(true);
         }
 
         GetColorFromData();
+        PhotonAuth(result.PlayFabId);
+    }
+
+    public void PhotonAuth(string playFabId)
+    {
+        var request = new GetPhotonAuthenticationTokenRequest
+        {
+            PhotonApplicationId = PhotonNetwork.PhotonServerSettings.AppSettings.AppIdRealtime
+        };
+
+        PlayFabClientAPI.GetPhotonAuthenticationToken(
+            request,
+            result => OnPhotonAuthSuccess(result, playFabId),
+            error => Debug.LogError(error.GenerateErrorReport())
+        );
+    }
+
+    private void OnPhotonAuthSuccess(GetPhotonAuthenticationTokenResult result, string playFabId)
+    {
+        Debug.Log("Got Photon Auth Token");
+
+        var auth = new AuthenticationValues(playFabId);
+        auth.AuthType = CustomAuthenticationType.Custom;
+
+        // These keys matter
+        auth.AddAuthParameter("username", playFabId);
+        auth.AddAuthParameter("token", result.PhotonCustomAuthenticationToken);
+
+        PhotonNetwork.AuthValues = auth;
+        PhotonNetwork.NickName = playFabId; // optional
+
+        // Make sure settings has a region set OR set it like this:
+        PhotonNetwork.ConnectUsingSettings();
+    }
+
+    public override void OnConnectedToMaster()
+    {
+        Debug.Log("Photon connected + authenticated to Master.");
+    }
+
+    public override void OnCustomAuthenticationFailed(string debugMessage)
+    {
+        Debug.LogError("Custom auth failed: " + debugMessage);
     }
 
     public void SubmitName()

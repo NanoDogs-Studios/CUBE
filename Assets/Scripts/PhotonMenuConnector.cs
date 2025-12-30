@@ -8,6 +8,7 @@ public class PhotonMenuConnector : MonoBehaviourPunCallbacks
     public static PhotonMenuConnector Instance;
     private const string ROOM_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     // (no I, O, 0, 1 — avoids confusion)
+    public static bool PlayFabPhotonAuthReady; // set true after AuthValues assigned
 
     private string GenerateRoomCode(int length = 5)
     {
@@ -48,6 +49,12 @@ public class PhotonMenuConnector : MonoBehaviourPunCallbacks
 
     private void EnsureConnected()
     {
+        if (!PlayFabPhotonAuthReady)
+        {
+            Debug.Log("Waiting for PlayFab/Photon auth before connecting.");
+            return;
+        }
+
         if (PhotonNetwork.IsConnectedAndReady) return;
 
         if (!PhotonNetwork.IsConnected)
