@@ -28,4 +28,9 @@ public class MenuManager : MonoBehaviour
             levelLoader.LoadLevel("SampleScene");
        // }
     }
+
+    public void OpenURL(string url)
+    {
+        Application.OpenURL(url);
+    }
 }
