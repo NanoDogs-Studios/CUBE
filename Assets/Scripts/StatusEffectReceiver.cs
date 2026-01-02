@@ -6,7 +6,10 @@ using UnityEngine.Rendering.Universal;
 
 public enum ClientEffectId : byte
 {
+    // glitch
     UnstablePresence = 1,
+    // coder
+    OverclockedMind = 2,
     // Add more: Fear, Hallucination, BleedVision, etc.
 }
 
@@ -36,6 +39,9 @@ public class StatusEffectReceiver : MonoBehaviourPun
             case ClientEffectId.UnstablePresence:
                 SetUnstablePresence(enabledNow, amt);
                 break;
+            case ClientEffectId.OverclockedMind:
+                SetOverclockedMind(enabledNow, amt);
+                break;
         }
     }
 
@@ -54,5 +60,13 @@ public class StatusEffectReceiver : MonoBehaviourPun
                 // TODO: smooth transitions for both effects
             }
         }
+    }
+
+    // Ability cooldowns tick 10% faster while NOT being chased
+    private void SetOverclockedMind(bool on, float amt)
+    {
+        GameObject canvas = GameObject.Find("Canvas");
+        PlayerAbilityManager abilityManager = canvas.GetComponent<PlayerAbilityManager>();
+        abilityManager.ModifyAbilityCooldown(0, on ? Mathf.RoundToInt(abilityManager.GetBaseCooldown(0) * (1f - amt * 0.1f)) : abilityManager.GetBaseCooldown(0));
     }
 }

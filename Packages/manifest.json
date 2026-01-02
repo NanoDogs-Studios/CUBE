@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "com.dgreenheck.openfracture": "https://github.com/dgreenheck/OpenFracture.git",
+    "com.discord.partnersdk": "file:../com.discord.partnersdk",
     "com.judahperez.hsvcolorpicker": "3.3.0",
+    "com.lachee.discordrpc": "https://github.com/Lachee/discord-rpc-unity.git",
     "com.nanodogs.toolkit": "https://github.com/NanoDogs-Studios/Nanodogs-Toolkit.git",
     "com.unity.2d.enhancers": "1.0.0",
     "com.unity.2d.sprite": "1.0.0",

@@ -15,4 +15,14 @@ public class MovementSC : MonoBehaviour
             rb.AddForce(move * Force * data.control, ForceMode.Acceleration);
         }
     }
+
+    public void ResetSpeed(float original)
+    {
+        Force = original;
+    }
+
+    public void ResetAfter(float time, float original)
+    {
+        Invoke("ResetSpeed", time);
+    }
 }

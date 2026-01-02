@@ -273,6 +273,40 @@ public class PlayerAbilityManager : MonoBehaviour
         ActivatePassives();
     }
 
+    // makes an ability's cooldown different
+    public void ModifyAbilityCooldown(int abilityIndex, int newCooldown)
+    {
+        if (abilityIndex < 0 || abilityIndex >= activeMoveset.Count)
+        {
+            Debug.LogWarning($"ModifyAbilityCooldown: abilityIndex {abilityIndex} out of range.");
+            return;
+        }
+        var ability = activeMoveset[abilityIndex];
+        if (ability == null)
+        {
+            Debug.LogWarning($"ModifyAbilityCooldown: ability at index {abilityIndex} is NULL.");
+            return;
+        }
+        ability.AbilityCooldown = newCooldown;
+        Debug.Log($"Modified cooldown of ability {ability.AbilityName} to {newCooldown} seconds.");
+    }
+
+    public int GetBaseCooldown(int abilityIndex)
+    {
+        if (abilityIndex < 0 || abilityIndex >= activeMoveset.Count)
+        {
+            Debug.LogWarning($"GetBaseCooldown: abilityIndex {abilityIndex} out of range.");
+            return 0;
+        }
+        var ability = activeMoveset[abilityIndex];
+        if (ability == null)
+        {
+            Debug.LogWarning($"GetBaseCooldown: ability at index {abilityIndex} is NULL.");
+            return 0;
+        }
+        return ability.AbilityCooldown;
+    }
+
     private void EnsureAbilityActionsEnabled()
     {
         for (int i = 0; i < abilityInputs.Count; i++)

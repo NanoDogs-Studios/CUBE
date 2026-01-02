@@ -26,4 +26,5 @@
   <Project Path="PhotonUnityNetworking.Utilities.Culling.Editor.csproj" />
   <Project Path="PlayFabSDKEditor.csproj" />
   <Project Path="Voice.FMOD.Editor.csproj" />
+  <Project Path="Discord.Sdk.csproj" />
 </Solution>
