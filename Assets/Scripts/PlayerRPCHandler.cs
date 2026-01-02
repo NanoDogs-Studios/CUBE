@@ -30,4 +30,17 @@ public class PlayerRPCHandler : MonoBehaviourPunCallbacks
         Debug.Log($"RPC_ArmHandle called on {gameObject.name}: hand={hand}, cancelled={cancelled}");
         armController.ArmHandle((Hands)hand, cancelled);
     }
+
+    [PunRPC]
+    public void RPC_ApplyClientEffect(byte effectId, bool on, float intensity)
+    {
+        var receiver = GetComponent<StatusEffectReceiver>();
+        if (receiver == null)
+        {
+            Debug.LogWarning("No StatusEffectReceiver on this player prefab.");
+            return;
+        }
+
+        receiver.ApplyEffect((ClientEffectId)effectId, on, intensity);
+    }
 }

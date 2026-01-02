@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -46,9 +47,10 @@ public class MenuCubeSpawner : MonoBehaviour
         Material material = new Material(Shader.Find("Shader Graphs/PolishedProto"));
         material.color = new Color(Random.value, Random.value, Random.value);
         material.SetTexture("_Base", baseMap);
-        material.SetTextureScale("_Base", new Vector2(4, 4));
+        material.SetVector("_Tiling", new Vector2(4, 4));
         material.SetTexture("_EmissionMap", baseMap);
         material.SetTextureScale("_EmissionMap", new Vector2(4, 4));
+        material.SetFloat("_Emission_Power", 0);
         cube.GetComponent<Renderer>().material = material;
 
         // collider + rigidbody
@@ -64,8 +66,25 @@ public class MenuCubeSpawner : MonoBehaviour
         if (spawnedCubes.Count > 15)
         {
             GameObject oldestCube = spawnedCubes[0];
-            spawnedCubes.RemoveAt(0);
-            Destroy(oldestCube);
+            //spawnedCubes.RemoveAt(0);
+            //Destroy(oldestCube);
+            // lerp the size, then destroy
+            StartCoroutine(ScaleDownAndDestroy(oldestCube, 1f));
         }
+    }
+
+    private IEnumerator ScaleDownAndDestroy(GameObject obj, float duration)
+    {
+        Vector3 originalScale = obj.transform.localScale;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            obj.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        obj.transform.localScale = Vector3.zero;
+        spawnedCubes.Remove(obj);
+        Destroy(obj);
     }
 }

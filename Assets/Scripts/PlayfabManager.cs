@@ -1,24 +1,33 @@
 using HSVPicker;
+using OpenCover.Framework.Model;
 using Photon.Pun;
 using Photon.Realtime;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
 using System.Globalization;
-using System.Threading.Tasks;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayfabManager : MonoBehaviourPunCallbacks
 {
+    public static PlayfabManager Instance { get; private set; }
+
+    [Header("Login UI")]
     public GameObject nameWindow;
     public TMP_InputField nameField;
     public TMP_Text infoText;
     public ColorPicker picker;
 
+    [Header("Currency")]
+    [Tooltip("PlayFab Virtual Currency code used for Cube Coins")]
+    public string cubeCoinsCode = "CC";
+
     private TMP_Text moneyText;
+
+    public int CachedCC { get; private set; }
+    public event Action<int> OnCubeCoinsChanged;
 
     string PlayFabId;
     static string displayName;
@@ -26,18 +35,34 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
     private float searchInterval = 1f;
     private float searchTimer = 0f;
 
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     private void InfoText(string text)
     {
-        infoText.text = text;
+        if (infoText != null) infoText.text = text;
     }
 
     private void Start()
     {
         SceneManager.activeSceneChanged += SceneChanged;
-        DontDestroyOnLoad(gameObject);
 
         InfoText(Application.version + " | " + "Not Logged In");
         Login();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+        SceneManager.activeSceneChanged -= SceneChanged;
     }
 
     void Login()
@@ -74,6 +99,8 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
 
     void TryFindMoneyText()
     {
+        // Your current hierarchy:
+        // Canvas/Stats/Money/MaliceValue (this is weirdly named, but fine)
         GameObject canvas = GameObject.Find("Canvas");
         if (canvas == null) return;
 
@@ -90,13 +117,13 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
         if (moneyText != null)
         {
             Debug.Log("Money text found!");
-            GetVirtualCurrencies();
+            RefreshCubeCoins();
         }
     }
 
     private void OnError(PlayFabError error)
     {
-        Debug.Log("Error! See error below");
+        Debug.Log("PlayFab Error:");
         Debug.Log(error.GenerateErrorReport());
     }
 
@@ -104,24 +131,27 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("Logged in! additional info: " + result.ToJson());
 
-        if (result.PlayFabId != null)
-        {
+        if (!string.IsNullOrEmpty(result.PlayFabId))
             PlayFabId = result.PlayFabId;
-        }
 
-        if (result.InfoResultPayload.PlayerProfile.DisplayName != null)
+        var profile = result.InfoResultPayload?.PlayerProfile;
+        if (profile != null && !string.IsNullOrEmpty(profile.DisplayName))
         {
-            displayName = result.InfoResultPayload.PlayerProfile.DisplayName;
+            displayName = profile.DisplayName;
             InfoText(Application.version + " | " + displayName + " | " + "Logged In");
         }
         else
         {
             InfoText(Application.version + " | " + "Not Set!" + " | " + "Logged In");
-            nameWindow.SetActive(true);
+            if (nameWindow != null) nameWindow.SetActive(true);
         }
 
         GetColorFromData();
         PhotonAuth(result.PlayFabId);
+
+        // If UI already exists, pull CC immediately.
+        // If not, TryFindMoneyText() will eventually find it and call RefreshCubeCoins().
+        RefreshCubeCoins();
     }
 
     public void PhotonAuth(string playFabId)
@@ -144,15 +174,12 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
 
         var auth = new AuthenticationValues(playFabId);
         auth.AuthType = CustomAuthenticationType.Custom;
-
-        // These keys matter
         auth.AddAuthParameter("username", playFabId);
         auth.AddAuthParameter("token", result.PhotonCustomAuthenticationToken);
 
         PhotonNetwork.AuthValues = auth;
-        PhotonNetwork.NickName = playFabId; // optional
+        PhotonNetwork.NickName = playFabId;
 
-        // Make sure settings has a region set OR set it like this:
         PhotonNetwork.ConnectUsingSettings();
     }
 
@@ -179,24 +206,110 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("Updated name to: " + result.DisplayName);
         displayName = result.DisplayName;
-
         InfoText(Application.version + " | " + displayName + " | " + "Logged In");
     }
 
-    public void GetVirtualCurrencies()
+    // =============================
+    // CUBE COINS (CC) API
+    // =============================
+
+    /// <summary>
+    /// Re-reads CC from PlayFab and updates UI + cache.
+    /// </summary>
+    public void RefreshCubeCoins()
     {
-        PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), OnGetUserInventorySuccess, OnError);
+        // GetUserInventory returns VirtualCurrency dict.
+        PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(),
+            result =>
+            {
+                int cc = 0;
+                if (result.VirtualCurrency != null && result.VirtualCurrency.TryGetValue(cubeCoinsCode, out var v))
+                    cc = v;
+
+                SetCachedCC(cc);
+            },
+            OnError);
     }
 
-    void OnGetUserInventorySuccess(GetUserInventoryResult result)
+    private void SetCachedCC(int cc)
     {
-        int cc = result.VirtualCurrency["CC"];
+        CachedCC = cc;
+
         if (moneyText != null)
-        {
             moneyText.text = cc.ToString();
-            Debug.Log("Got the currency and its value: " + cc);
-        }
+
+        OnCubeCoinsChanged?.Invoke(cc);
     }
+
+    /// <summary>
+    /// Adds CC. Use for rewards, end-of-round payouts, etc.
+    /// </summary>
+    public void AddCubeCoins(int amount, string reason = "")
+    {
+        if (amount <= 0)
+        {
+            Debug.LogWarning("AddCubeCoins called with non-positive amount.");
+            return;
+        }
+
+        var request = new AddUserVirtualCurrencyRequest
+        {
+            VirtualCurrency = cubeCoinsCode,
+            Amount = amount
+        };
+
+        PlayFabClientAPI.AddUserVirtualCurrency(request,
+            result =>
+            {
+                // result.Balance is the NEW balance after add.
+                SetCachedCC(result.Balance);
+                Debug.Log($"+{amount} {cubeCoinsCode} (reason: {reason}) -> balance {result.Balance}");
+            },
+            OnError);
+    }
+
+    /// <summary>
+    /// Tries to spend CC. Calls back with success and the balance (new or unchanged).
+    /// </summary>
+    public void TrySpendCubeCoins(int cost, string reason, Action<bool, int> onResult)
+    {
+        if (cost <= 0)
+        {
+            onResult?.Invoke(true, CachedCC);
+            return;
+        }
+
+        // Optional fast-fail (UI responsiveness). Real authority is PlayFab’s response.
+        if (CachedCC < cost)
+        {
+            onResult?.Invoke(false, CachedCC);
+            return;
+        }
+
+        var request = new SubtractUserVirtualCurrencyRequest
+        {
+            VirtualCurrency = cubeCoinsCode,
+            Amount = cost
+        };
+
+        PlayFabClientAPI.SubtractUserVirtualCurrency(request,
+            result =>
+            {
+                SetCachedCC(result.Balance);
+                Debug.Log($"-{cost} {cubeCoinsCode} (reason: {reason}) -> balance {result.Balance}");
+                onResult?.Invoke(true, result.Balance);
+            },
+            error =>
+            {
+                // If PlayFab rejects (insufficient funds, etc.) we keep cache as-is and notify.
+                Debug.LogWarning("Spend failed: " + error.GenerateErrorReport());
+                onResult?.Invoke(false, CachedCC);
+            });
+    }
+
+    // =============================
+    // Your existing color + misc
+    // =============================
 
     void GetColorFromData()
     {
@@ -205,7 +318,7 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
 
     public void onSuccessGetData(GetUserDataResult result)
     {
-        foreach(var item in result.Data)
+        foreach (var item in result.Data)
         {
             if (item.Value.Value.Contains("#"))
             {
@@ -240,18 +353,19 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
             });
     }
 
-
     public void SetColorToPicker()
     {
+        Color color = picker.CurrentColor;
+        string hex = ColorUtility.ToHtmlStringRGBA(color);
+
         PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest()
         {
             Data = new System.Collections.Generic.Dictionary<string, string>()
             {
-                {"PlayerColor", "#" + picker.CurrentColor.ToHexString()}
+                {"PlayerColor", "#" + hex}
             }
         },
-        OnSetColorData, OnError
-        );
+        OnSetColorData, OnError);
     }
 
     public void OnSetColorData(UpdateUserDataResult result)
@@ -259,30 +373,23 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
         Debug.Log("Set Color: " + result.ToString());
     }
 
-    public static string GetPlayerName()
-    {
-        return displayName;
-    }
+    public static string GetPlayerName() => displayName;
 
     public static Color FromHex(string hex)
     {
-        if (hex.Length < 6)
-        {
-            throw new System.FormatException("Needs a string with a length of at least 6");
-        }
+        if (hex.Length < 6) throw new System.FormatException("Needs a string with a length of at least 6");
 
         var r = hex.Substring(0, 2);
         var g = hex.Substring(2, 2);
         var b = hex.Substring(4, 2);
-        string alpha;
-        if (hex.Length >= 8)
-            alpha = hex.Substring(6, 2);
-        else
-            alpha = "FF";
+        string alpha = (hex.Length >= 8) ? hex.Substring(6, 2) : "FF";
 
-        return new Color((int.Parse(r, NumberStyles.HexNumber) / 255f),
-                        (int.Parse(g, NumberStyles.HexNumber) / 255f),
-                        (int.Parse(b, NumberStyles.HexNumber) / 255f),
-                        (int.Parse(alpha, NumberStyles.HexNumber) / 255f));
+        return new Color(
+            (int.Parse(r, NumberStyles.HexNumber) / 255f),
+            (int.Parse(g, NumberStyles.HexNumber) / 255f),
+            (int.Parse(b, NumberStyles.HexNumber) / 255f),
+            (int.Parse(alpha, NumberStyles.HexNumber) / 255f)
+        );
     }
 }
+

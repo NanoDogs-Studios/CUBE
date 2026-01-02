@@ -5397,6 +5397,7 @@ GameObject:
   - component: {fileID: 6057265854288984646}
   - component: {fileID: 6236658264408242413}
   - component: {fileID: 5142198532529002959}
+  - component: {fileID: 4846410338160408091}
   m_Layer: 8
   m_Name: BaseCharacter
   m_TagString: Player
@@ -5659,6 +5660,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VoicelineHandler
   player: {fileID: 6010820129828816600}
+--- !u!114 &4846410338160408091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4360496906041607540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b42edea898b6f7429a40e0ce8153c8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &4385198401687824320
 GameObject:
   m_ObjectHideFlags: 0

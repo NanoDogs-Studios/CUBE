@@ -11,26 +11,17 @@ public class Ability : ScriptableObject
     public Sprite AbilityIcon;
     public Sprite AbilityIconGrayscale;
     public int AbilityCooldown;
+
+    [Header("Input")]
     public InputActionAsset actionsAsset;
-    public InputActionReference AbilityActivation;
+    public string actionMapName = "Player";
+    public string actionName = "Ability1";
+
+    // only for clarity, passive abilities cannot be activated
+    public bool isPassive = false;
 
     [Range(1, 4)]
     public int AbilityLevel = 1;
-
-#if UNITY_EDITOR
-    // This runs when you change something or focus back on the asset
-    void OnValidate()
-    {
-        if (AbilityActivation == null && actionsAsset != null)
-        {
-            var action = actionsAsset.FindAction($"Ability{AbilityLevel}");
-            if (action != null)
-                AbilityActivation = InputActionReference.Create(action);
-            EditorUtility.SetDirty(this);
-        }
-    }
-#endif
-
 
     /// <summary>
     /// This method is called when the ability is activated.

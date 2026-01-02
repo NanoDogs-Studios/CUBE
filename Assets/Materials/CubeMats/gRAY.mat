@@ -106,6 +106,7 @@ Material:
     - _Dither_Multiplier: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _Emission_Power: 2
     - _EnvironmentReflections: 1
     - _Fresnel: 1
     - _Fresnel_Power: 5

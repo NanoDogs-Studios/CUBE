@@ -1,3 +1,4 @@
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using UnityEngine;
 
@@ -120,6 +121,8 @@ public class PlayerCustomizer : MonoBehaviourPunCallbacks
 
     private void ApplySurvivorCustomisation(string id)
     {
+        instanceMaterial = null; // ensure PlayerMat isn't treated as current
+
         SurvivorType survivorType = CharacterDatabase.GetSurvivorByName(id);
         if (survivorType == null)
         {

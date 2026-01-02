@@ -3,7 +3,6 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 public class PhotonLauncher : MonoBehaviourPunCallbacks
 {
@@ -129,11 +128,15 @@ public class PhotonLauncher : MonoBehaviourPunCallbacks
         LocalPlayerInstance = PhotonNetwork.Instantiate(playerPrefab.name, pos, rot);
         Debug.Log("Spawned local player.");
 
+
+        Color color = Resources.Load<Material>("PlayerMat").GetColor("_MainColor");
+        string hex = "#" + ColorUtility.ToHtmlStringRGB(color);
+
         var customizer = LocalPlayerInstance.GetComponent<PlayerCustomizer>();
         if (customizer != null)
         {
             customizer.ChangeColorCalled(
-                Resources.Load<Material>("PlayerMat").GetColor("_MainColor").ToHexString()
+                hex
             );
         }
     }

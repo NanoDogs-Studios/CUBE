@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66b7001dd2b1e4c439857fca1bddb322, type: 3}
   m_Name: GlitchDash
   m_EditorClassIdentifier: Assembly-CSharp::GlitchDash
-  AbilityName: Glitch Dash
+  AbilityName: Phase Dash
   AbilityIcon: {fileID: 21300000, guid: 67613959a657d3a4682bd18ced781340, type: 3}
   AbilityIconGrayscale: {fileID: 21300000, guid: be295d531fe1873409d429fdf3b45747, type: 3}
   AbilityCooldown: 7
   actionsAsset: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   AbilityActivation: {fileID: 0}
+  isPassive: 0
   AbilityLevel: 1
   dashDistance: 40
   dashSound: {fileID: 8300000, guid: c009bc702fb3dda4e87ac132a404abc7, type: 3}

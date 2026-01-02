@@ -26,7 +26,7 @@
         "com.unity.addressables": "1.19.19",
         "com.unity.ugui": "2.0"
       },
-      "hash": "159b2dea77c19bbc0757a0a652e3dbeda4013c7a"
+      "hash": "4e3b0b9aaee94edfae3d702bd4bf84f355e71ff0"
     },
     "com.unity.2d.common": {
       "version": "12.0.1",
@@ -434,16 +434,6 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
-    },
-    "com.unity.visualscripting": {
-      "version": "1.9.9",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.ugui": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
