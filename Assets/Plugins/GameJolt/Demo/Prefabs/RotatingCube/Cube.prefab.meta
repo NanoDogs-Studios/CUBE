@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6a2994124f93a42fb99a7b8658864d48
+timeCreated: 1489805315
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103938
+  packageName: Game Jolt API
+  packageVersion: 2.5.8
+  assetPath: Assets/Plugins/GameJolt/Demo/Prefabs/RotatingCube/Cube.prefab
+  uploadId: 536125

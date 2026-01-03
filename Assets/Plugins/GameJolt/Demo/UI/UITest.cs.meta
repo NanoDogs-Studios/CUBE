@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 744bd44e753dde54d86496a63a3dadde
+timeCreated: 1430959119
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103938
+  packageName: Game Jolt API
+  packageVersion: 2.5.8
+  assetPath: Assets/Plugins/GameJolt/Demo/UI/UITest.cs
+  uploadId: 536125

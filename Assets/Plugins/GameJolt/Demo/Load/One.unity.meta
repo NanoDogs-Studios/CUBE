@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e5a88fd1228154bfdb03ffa440fb61e7
+timeCreated: 1489805438
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103938
+  packageName: Game Jolt API
+  packageVersion: 2.5.8
+  assetPath: Assets/Plugins/GameJolt/Demo/Load/One.unity
+  uploadId: 536125

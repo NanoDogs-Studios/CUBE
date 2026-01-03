@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8f9be732d6e984c33a4e580508158bab
+timeCreated: 1436597886
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103938
+  packageName: Game Jolt API
+  packageVersion: 2.5.8
+  assetPath: Assets/Plugins/GameJolt/Demo/Prefabs/RotatingCube/CubeAnimator.controller
+  uploadId: 536125

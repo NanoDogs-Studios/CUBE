@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 439bd5ba068c1d64fbbb0dcea1fdaf5b
+timeCreated: 1565352379
+licenseType: Store
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103938
+  packageName: Game Jolt API
+  packageVersion: 2.5.8
+  assetPath: Assets/Plugins/GameJolt/Demo/GameJoltDemos.asmdef
+  uploadId: 536125
