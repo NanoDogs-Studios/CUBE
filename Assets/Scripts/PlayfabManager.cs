@@ -1,5 +1,4 @@
 using HSVPicker;
-using OpenCover.Framework.Model;
 using Photon.Pun;
 using Photon.Realtime;
 using PlayFab;
@@ -374,6 +373,39 @@ public class PlayfabManager : MonoBehaviourPunCallbacks
     }
 
     public static string GetPlayerName() => displayName;
+
+    /// <summary>
+    /// Gets a single UserData value by key.
+    /// Calls back with null if missing.
+    /// </summary>
+    public void GetUserDataValue(string key, Action<string> onResult)
+    {
+        PlayFabClientAPI.GetUserData(
+            new GetUserDataRequest
+            {
+                PlayFabId = PlayFabId,
+                Keys = new System.Collections.Generic.List<string> { key }
+            },
+            result =>
+            {
+                if (result.Data != null &&
+                    result.Data.TryGetValue(key, out var entry))
+                {
+                    onResult?.Invoke(entry.Value);
+                }
+                else
+                {
+                    onResult?.Invoke(null);
+                }
+            },
+            error =>
+            {
+                Debug.LogWarning($"GetUserDataValue failed for key '{key}':\n{error.GenerateErrorReport()}");
+                onResult?.Invoke(null);
+            }
+        );
+    }
+
 
     public static Color FromHex(string hex)
     {

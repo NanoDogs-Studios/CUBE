@@ -143,5 +143,13 @@ public class CharacterInput : MonoBehaviour
         {
             data.movement.Move(movementInput);
         }
+        else if (data.Grounded)
+        {
+            // make sure the player doesnt move when no input
+            data.movement.Move(Vector3.zero);
+            Rigidbody controlRB = this.transform.Find("Hip").GetComponent<Rigidbody>();
+            controlRB.linearVelocity = Vector3.zero;
+            controlRB.angularVelocity = Vector3.zero;
+        }
     }
 }

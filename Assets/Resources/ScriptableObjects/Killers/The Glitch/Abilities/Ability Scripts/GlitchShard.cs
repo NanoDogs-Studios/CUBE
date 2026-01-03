@@ -26,14 +26,7 @@ public class GlitchShard : Ability
         shard.transform.position = player.transform.position + player.transform.forward * 1.5f;
         rb.AddForce(player.transform.forward * force, ForceMode.Impulse);
         rb.useGravity = false;
-
-        HitboxCreateArguments args = new HitboxCreateArguments
-        {
-            Center = shard.transform.position,
-            Size = shard.transform.localScale * 0.5f,
-            Rotation = shard.transform.rotation
-        };
-        Hitbox hitbox = HitboxCreator.CreateHitbox(args, damage, 5);
+        // TODO: new hitbox system
         Destroy(shard, 5f); // Clean up the shard object after 5 second
     }
 }

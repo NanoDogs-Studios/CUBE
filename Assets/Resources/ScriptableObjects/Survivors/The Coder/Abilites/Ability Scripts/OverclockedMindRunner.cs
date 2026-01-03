@@ -13,7 +13,7 @@ public class OverclockedMindRunner : PassiveRunner
     {
         // RPC method is on BasePlayer (exists on all players)
         targetPV.RPC(nameof(PlayerRPCHandler.RPC_ApplyClientEffect), targetPV.Owner,
-            (byte)ClientEffectId.UnstablePresence, on, 1f);
+            (byte)ClientEffectId.OverclockedMind, on, 1f);
     }
 
     public override void Tick()
